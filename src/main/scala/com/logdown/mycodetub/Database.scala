@@ -6,10 +6,10 @@ package com.logdown.mycodetub
 trait Database {
     def createData(key: String, value: String): String
 
-    def removeData(key: String): String
+    def deleteDataByKey(key: String): String
 
     def updateData(key: String, value: String): String
 
-    def deleteData(key: String): String
+    def getDataByKey(key: String): String
 
 }

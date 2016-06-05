@@ -13,9 +13,15 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
         localMemoryDb.getOrElse(key, "")
     }
 
-    override def removeData(key: String): String = localMemoryDb.getOrElse(key, "")
+    override def deleteDataByKey(key: String): String = localMemoryDb.getOrElse(key, "")
 
-    override def updateData(key: String, value: String): String = ""
+    override def updateData(key: String, value: String): String = {
+        val updateResult = localMemoryDb.put(key, value) match {
+            case None => ""
+            case _ => localMemoryDb.getOrElse(key, "")
+        }
+        updateResult
+    }
 
-    override def deleteData(key: String): String = ""
+    override def getDataByKey(key: String): String = ""
 }

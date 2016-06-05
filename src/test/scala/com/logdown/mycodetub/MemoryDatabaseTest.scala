@@ -29,7 +29,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         addedResult should be(expectedData)
     }
 
-    "RemoveData" should "not return empty string, if delete data is success in " in {
+    "DeleteDataByKey" should "not return empty string, if delete data is success in " in {
         val expectedKey = "expectedKey"
         val expectedData = "AnyData"
 
@@ -37,7 +37,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         fakeDb.put(expectedKey, expectedData)
 
         val db = new MemoryDatabase(fakeDb)
-        val actualResult = db.removeData(expectedKey)
+        val actualResult = db.deleteDataByKey(expectedKey)
 
         actualResult should not be EmptyString
     }
@@ -46,9 +46,55 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         val db = new MemoryDatabase()
         val keyOfNoData = "whatEver"
 
-        val actualResult = db.deleteData(keyOfNoData)
+        val actualResult = db.getDataByKey(keyOfNoData)
 
         actualResult should be(EmptyString)
+    }
+
+    "UpdateData" should "return updated data, if update is success" in {
+        val expectedKey = "0001"
+        val origionaldata =
+            """
+              |{
+              | "name":"Pajace",
+              | "phone":"0912345678",
+              | "sex":"M"
+              |}
+            """.stripMargin
+
+        val updatedData =
+            """
+              |{
+              | "name":"Pajace",
+              | "phone":"987654321",
+              | "sex":"M"
+              |}
+            """.stripMargin
+
+        val fakeDb = mutable.Map[String, String]()
+        fakeDb.put(expectedKey, origionaldata)
+
+        val db = new MemoryDatabase(fakeDb)
+        val actualUpdatedData = db.updateData(expectedKey, updatedData)
+
+        actualUpdatedData should be (updatedData)
+    }
+
+    it should "return empty String, if update failed" in {
+        val expectedKey = "0001"
+        val origionaldata =
+            """
+              |{
+              | "name":"Pajace",
+              | "phone":"0912345678",
+              | "sex":"M"
+              |}
+            """.stripMargin
+
+        val db = new MemoryDatabase()
+        val actualUpdatedData = db.updateData(expectedKey, origionaldata)
+
+        actualUpdatedData should be(EmptyString)
     }
 
 }
