@@ -1,6 +1,7 @@
 package com.logdown.mycodetub
 
 import com.google.inject.Stage
+import com.twitter.finagle.http._
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
 
@@ -15,9 +16,19 @@ class BookStoreStartupTest extends FeatureTest {
         verbose = true)
 
     "Server" should {
+
         "startup" in {
             server.assertHealthy()
         }
+
+        "Say Welcome " in {
+            server.httpGet(
+                path = "/welcome?name=UF5",
+                andExpect = Status.Ok,
+                withBody = "Welcome, UF5"
+            )
+        }
     }
+
 
 }
