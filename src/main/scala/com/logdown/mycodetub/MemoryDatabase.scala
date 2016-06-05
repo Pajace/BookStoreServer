@@ -23,5 +23,5 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
         updateResult
     }
 
-    override def getDataByKey(key: String): String = ""
+    override def getDataByKey(key: String): String = localMemoryDb.getOrElse(key, "")
 }

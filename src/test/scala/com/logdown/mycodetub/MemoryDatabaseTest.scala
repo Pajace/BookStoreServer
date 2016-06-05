@@ -8,7 +8,7 @@ import scala.collection.mutable
 /**
   * Created by Pajace on 2016/6/5.
   */
-class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
+class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory {
 
     val EmptyString = ""
 
@@ -29,7 +29,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         addedResult should be(expectedData)
     }
 
-    "DeleteDataByKey" should "not return empty string, if delete data is success in " in {
+    "DeleteDataByKey" should "not return empty string, if delete data is success " in {
         val expectedKey = "expectedKey"
         val expectedData = "AnyData"
 
@@ -77,7 +77,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         val db = new MemoryDatabase(fakeDb)
         val actualUpdatedData = db.updateData(expectedKey, updatedData)
 
-        actualUpdatedData should be (updatedData)
+        actualUpdatedData should be(updatedData)
     }
 
     it should "return empty String, if update failed" in {
@@ -95,6 +95,34 @@ class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory{
         val actualUpdatedData = db.updateData(expectedKey, origionaldata)
 
         actualUpdatedData should be(EmptyString)
+    }
+
+    "getDataByKey" should "return data" in {
+        val expectedKey = "0001"
+        val expectedData =
+            """
+              |{
+              | "name":"Pajace",
+              | "phone":"0912345678",
+              | "sex":"M"
+              |}
+            """.stripMargin
+
+        val fakeDb = mutable.Map[String, String]()
+        fakeDb.put(expectedKey, expectedData)
+
+        val db = new MemoryDatabase(fakeDb)
+        val actualResult = db.getDataByKey(expectedKey)
+
+        actualResult should be(expectedData)
+    }
+
+    it should "return empty string if get data failed" in {
+        val db: Database = new MemoryDatabase()
+
+        val actualResult = db.getDataByKey("what ever")
+
+        actualResult should be(EmptyString)
     }
 
 }
