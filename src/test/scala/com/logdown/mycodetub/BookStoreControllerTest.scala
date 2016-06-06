@@ -1,6 +1,7 @@
 package com.logdown.mycodetub
 
 import com.google.inject.Stage
+import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
@@ -16,13 +17,11 @@ class BookStoreControllerTest extends FeatureTest {
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
-    val BookStoreAddPath = "/bookstore/add"
-
     "BookStoreController" should {
         "response created when POST request for add is made" in {
             val isbn = "9787512387744"
             server.httpPost(
-                path = BookStoreAddPath,
+                path = BookStoreApi.path_create,
                 postBody =
                     s"""
                        |{
@@ -40,11 +39,11 @@ class BookStoreControllerTest extends FeatureTest {
         }
 
         "list book's information whe GET request is made" in {
-
+            val expectedIsbn = "9789869279987"
             val expectedBookJsonData =
-                """
+                s"""
                   |{
-                  |"isbn":"9789869279987",
+                  |"isbn":"${expectedIsbn}",
                   |"name":"Growth Hack",
                   |"author":"Xdite",
                   |"publishing":"PCuSER電腦人文化",
@@ -54,12 +53,12 @@ class BookStoreControllerTest extends FeatureTest {
                 """.stripMargin
 
             val response = server.httpPost(
-                path = BookStoreAddPath,
+                path = BookStoreApi.path_create,
                 postBody = expectedBookJsonData,
                 andExpect = Status.Created,
-                withLocation = "/bookstore/9789869279987"
+                withLocation = BookStoreApi.path_get(expectedIsbn)
             )
-
+            // get data
             server.httpGetJson[Book](
                 path = response.location.get,
                 withJsonBody = expectedBookJsonData
@@ -69,7 +68,7 @@ class BookStoreControllerTest extends FeatureTest {
         "response ok when update book's information is success by using PUT" in {
             // create data
             server.httpPost(
-                path = BookStoreAddPath,
+                path = BookStoreApi.path_create,
                 postBody =
                     """
                       |{
@@ -82,8 +81,9 @@ class BookStoreControllerTest extends FeatureTest {
                       |}
                     """.stripMargin)
 
+            // update data
             val response = server.httpPut(
-                path = "/bookstore/update",
+                path = BookStoreApi.path_update,
                 putBody =
                     """
                       |{
