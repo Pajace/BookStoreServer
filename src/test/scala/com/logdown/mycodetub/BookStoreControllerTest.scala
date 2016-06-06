@@ -1,6 +1,7 @@
 package com.logdown.mycodetub
 
 import com.google.inject.Stage
+import com.logdown.mycodetub.data.Book
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
@@ -32,6 +33,40 @@ class BookStoreControllerTest extends FeatureTest {
                     """.stripMargin,
                 andExpect = Status.Created,
                 withLocation = "/bookstore/9787512387744"
+            )
+        }
+
+        "list book's information whe GET request is made" in {
+            val response = server.httpPost(
+                path = "/bookstore/add",
+                postBody =
+                    """
+                      |{
+                      |"isbn":"9789869279987",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化",
+                      |"version":"初版",
+                      |"price":360.0
+                      |}
+                    """.stripMargin,
+                andExpect = Status.Created,
+                withLocation = "/bookstore/9789869279987"
+            )
+
+            server.httpGetJson[Book](
+                path = response.location.get,
+                withJsonBody =
+                    """
+                      |{
+                      |"isbn":"9789869279987",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化",
+                      |"version":"初版",
+                      |"price":360.0
+                      |}
+                    """.stripMargin
             )
         }
     }

@@ -10,7 +10,6 @@ lazy val versions = new {
     val guice = "4.0"
     val specs2 = "2.3.12"
     val scalatest = "2.2.6"
-    val scalamock = "3.3.2"
 }
 
 resolvers ++= Seq(
@@ -41,4 +40,6 @@ libraryDependencies += "com.twitter.finatra" % "finatra-jackson_2.11" % versions
 
 libraryDependencies += "org.scalatest" %% "scalatest" % versions.scalatest % "test"
 libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"
-libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % versions.scalamock % "test"
+
+// http://mvnrepository.com/artifact/com.google.code.gson/gson
+libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
