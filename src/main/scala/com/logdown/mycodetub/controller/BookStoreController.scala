@@ -14,6 +14,8 @@ object BookStoreApi {
 
     def path_get(isbn: String) = s"/bookstore/${isbn}"
 
+    def path_list() = "/bookstore/list"
+
     def path_update = "/bookstore/update"
 
     def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
@@ -34,6 +36,12 @@ class BookStoreController extends Controller {
         request: Request =>
             val bookJsonString = db.getDataByKey(request.params("isbn"))
             gson.fromJson[Book](bookJsonString, classOf[Book])
+    }
+
+    get(BookStoreApi.path_list) {
+        request: Request =>
+            response.ok
+            db.listData()
     }
 
     put(BookStoreApi.path_update) {

@@ -17,6 +17,7 @@ class BookStoreControllerTest extends FeatureTest {
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
+
     "POST" should {
         "response created and GET location when request for add is made" in {
             val expectedIsbn = "9787512387744"
@@ -67,7 +68,6 @@ class BookStoreControllerTest extends FeatureTest {
                 withJsonBody = expectedBookJsonData
             )
         }
-
     }
 
     "PUT" should {
