@@ -19,13 +19,13 @@ class BookStoreControllerTest extends FeatureTest {
 
     "BookStoreController" should {
         "response created when POST request for add is made" in {
-            val isbn = "9787512387744"
+            val expectedIsbn = "9787512387744"
             server.httpPost(
                 path = BookStoreApi.path_create,
                 postBody =
                     s"""
                        |{
-                       |"isbn":"${isbn}",
+                       |"isbn":"${expectedIsbn}",
                        |"name":"Scala 學習手冊",
                        |"author":"Swartz, J.",
                        |"publishing":"OREILLY",
@@ -34,7 +34,7 @@ class BookStoreControllerTest extends FeatureTest {
                        |}
                     """.stripMargin,
                 andExpect = Status.Created,
-                withLocation = s"/bookstore/${isbn}"
+                withLocation = BookStoreApi.path_get(expectedIsbn)
             )
         }
 
@@ -42,14 +42,14 @@ class BookStoreControllerTest extends FeatureTest {
             val expectedIsbn = "9789869279987"
             val expectedBookJsonData =
                 s"""
-                  |{
-                  |"isbn":"${expectedIsbn}",
-                  |"name":"Growth Hack",
-                  |"author":"Xdite",
-                  |"publishing":"PCuSER電腦人文化",
-                  |"version":"初版",
-                  |"price":360.0
-                  |}
+                   |{
+                   |"isbn":"${expectedIsbn}",
+                   |"name":"Growth Hack",
+                   |"author":"Xdite",
+                   |"publishing":"PCuSER電腦人文化",
+                   |"version":"初版",
+                   |"price":360.0
+                   |}
                 """.stripMargin
 
             val response = server.httpPost(
@@ -117,35 +117,28 @@ class BookStoreControllerTest extends FeatureTest {
         }
 
         "response ok when delete book is success by using DELETE" in {
+            val expectedIsbn = "9789869279000"
+            val expectedBookData =
+                """
+                  |{
+                  |"isbn":"9789869279000",
+                  |"name":"Growth Hack",
+                  |"author":"Xdite",
+                  |"publishing":"PCuSER電腦人文化",
+                  |"version":"初版",
+                  |"price":360.0
+                  |}
+                """.stripMargin
+
             server.httpPost(
                 path = BookStoreApi.path_create,
-                postBody =
-                    """
-                      |{
-                      |"isbn":"9789869279000",
-                      |"name":"Growth Hack",
-                      |"author":"Xdite",
-                      |"publishing":"PCuSER電腦人文化",
-                      |"version":"初版",
-                      |"price":360.0
-                      |}
-                    """.stripMargin,
+                postBody = expectedBookData,
                 andExpect = Status.Created,
-                withLocation = "/bookstore/9789869279000")
+                withLocation = BookStoreApi.path_get(expectedIsbn))
 
             server.httpDelete(
-                path = BookStoreApi.path_delete("9789869279000"),
-                withJsonBody =
-                    """
-                      |{
-                      |"isbn":"9789869279000",
-                      |"name":"Growth Hack",
-                      |"author":"Xdite",
-                      |"publishing":"PCuSER電腦人文化",
-                      |"version":"初版",
-                      |"price":360.0
-                      |}
-                    """.stripMargin,
+                path = BookStoreApi.path_delete(expectedIsbn),
+                withJsonBody = expectedBookData,
                 andExpect = Status.Accepted
             )
         }
