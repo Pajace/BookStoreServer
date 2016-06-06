@@ -65,5 +65,56 @@ class BookStoreControllerTest extends FeatureTest {
                 withJsonBody = expectedBookJsonData
             )
         }
+
+        "response ok when update book's information is success by using PUT" in {
+            // create data
+            server.httpPost(
+                path = BookStoreAddPath,
+                postBody =
+                    """
+                      |{
+                      |"isbn":"9789869279000",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化",
+                      |"version":"初版",
+                      |"price":360.0
+                      |}
+                    """.stripMargin)
+
+            val response = server.httpPut(
+                path = "/bookstore/update",
+                putBody =
+                    """
+                      |{
+                      |"isbn":"9789869279000",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化2",
+                      |"version":"初版",
+                      |"price":880.0
+                      |}
+                    """.stripMargin,
+                andExpect = Status.Ok,
+                withLocation = "/bookstore/9789869279000"
+            )
+
+            // assert
+            server.httpGetJson[Book](
+                path = response.location.get,
+                withJsonBody =
+                    """
+                      |{
+                      |"isbn":"9789869279000",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化2",
+                      |"version":"初版",
+                      |"price":880.0
+                      |}
+                    """.stripMargin
+            )
+        }
+
     }
 }

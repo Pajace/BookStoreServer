@@ -26,4 +26,11 @@ class BookStoreController extends Controller {
             gson.fromJson[Book](bookJsonString, classOf[Book])
     }
 
+    put("/bookstore/update") {
+        book : Book =>
+            val bookJsonString = gson.toJson(book)
+            db.updateData(book.isbn, bookJsonString)
+            response.ok.location(s"/bookstore/${book.isbn}")
+    }
+
 }
