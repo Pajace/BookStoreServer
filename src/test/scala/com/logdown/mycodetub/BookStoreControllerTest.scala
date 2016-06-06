@@ -149,5 +149,13 @@ class BookStoreControllerTest extends FeatureTest {
                 andExpect = Status.Accepted
             )
         }
+
+        "response \"BadRequest\", when delete key isn't exist" in {
+            val notExistKey = "1111111111111"
+            server.httpDelete(
+                path = BookStoreApi.path_delete(notExistKey),
+                andExpect = Status.BadRequest
+            )
+        }
     }
 }
