@@ -17,8 +17,8 @@ class BookStoreControllerTest extends FeatureTest {
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
-    "BookStoreController" should {
-        "response created when POST request for add is made" in {
+    "POST" should {
+        "response created and GET location when request for add is made" in {
             val expectedIsbn = "9787512387744"
             server.httpPost(
                 path = BookStoreApi.path_create,
@@ -37,7 +37,9 @@ class BookStoreControllerTest extends FeatureTest {
                 withLocation = BookStoreApi.path_get(expectedIsbn)
             )
         }
+    }
 
+    "GET" should {
         "list book's information whe GET request is made" in {
             val expectedIsbn = "9789869279987"
             val expectedBookJsonData =
@@ -58,14 +60,17 @@ class BookStoreControllerTest extends FeatureTest {
                 andExpect = Status.Created,
                 withLocation = BookStoreApi.path_get(expectedIsbn)
             )
-            // get data
+
+            // get data and assert
             server.httpGetJson[Book](
                 path = response.location.get,
                 withJsonBody = expectedBookJsonData
             )
         }
+    }
 
-        "response ok when update book's information is success by using PUT" in {
+    "PUT" should {
+        "response Accepted and GET path after book's information is updated" in {
             // create data
             server.httpPost(
                 path = BookStoreApi.path_create,
@@ -95,7 +100,7 @@ class BookStoreControllerTest extends FeatureTest {
                       |"price":880.0
                       |}
                     """.stripMargin,
-                andExpect = Status.Ok,
+                andExpect = Status.Accepted,
                 withLocation = "/bookstore/9789869279000"
             )
 
@@ -115,8 +120,10 @@ class BookStoreControllerTest extends FeatureTest {
                     """.stripMargin
             )
         }
+    }
 
-        "response ok when delete book is success by using DELETE" in {
+    "DELETE" should {
+        "response Accepted and delete body when DELETE is success" in {
             val expectedIsbn = "9789869279000"
             val expectedBookData =
                 """

@@ -40,7 +40,7 @@ class BookStoreController extends Controller {
         book: Book =>
             val bookJsonString = gson.toJson(book)
             db.updateData(book.isbn, bookJsonString)
-            response.ok.location(s"/bookstore/${book.isbn}")
+            response.accepted.location(s"/bookstore/${book.isbn}")
     }
 
     delete(BookStoreApi.path_delete(":isbn")) {
