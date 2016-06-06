@@ -1,5 +1,6 @@
 package com.logdown.mycodetub
 
+import com.logdown.mycodetub.controller.{BookStoreController, WelcomeBookStoreController}
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
@@ -13,7 +14,7 @@ class BookStoreServer extends HttpServer {
 
     override protected def configureHttp(router: HttpRouter): Unit = {
         router
-            .filter[CommonFilters]
             .add[WelcomeBookStoreController]
+            .add[BookStoreController]
     }
 }

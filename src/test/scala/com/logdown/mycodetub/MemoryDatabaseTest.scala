@@ -1,6 +1,5 @@
 package com.logdown.mycodetub
 
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
@@ -8,7 +7,7 @@ import scala.collection.mutable
 /**
   * Created by Pajace on 2016/6/5.
   */
-class MemoryDatabaseTest extends FlatSpec with Matchers with MockFactory {
+class MemoryDatabaseTest extends FlatSpec with Matchers {
 
     val EmptyString = ""
 

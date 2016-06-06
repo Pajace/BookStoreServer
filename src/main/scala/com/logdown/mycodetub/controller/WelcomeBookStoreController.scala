@@ -1,4 +1,4 @@
-package com.logdown.mycodetub
+package com.logdown.mycodetub.controller
 
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
