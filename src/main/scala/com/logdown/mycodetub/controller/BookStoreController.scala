@@ -12,17 +12,16 @@ import com.twitter.finatra.http.Controller
 class BookStoreController extends Controller {
 
     val db: Database = new MemoryDatabase()
+    val gson = new Gson
 
     post("/bookstore/add") {
         book: Book =>
-            val gson = new Gson
             db.createData(book.isbn, gson.toJson(book))
             response.created.location(s"/bookstore/${book.isbn}")
     }
 
     get("/bookstore/:isbn") {
         request: Request =>
-            val gson = new Gson
             val bookJsonString = db.getDataByKey(request.params("isbn"))
             gson.fromJson[Book](bookJsonString, classOf[Book])
     }
