@@ -3,7 +3,7 @@ package com.logdown.mycodetub
 /**
   * Created by Pajace on 2016/6/5.
   */
-trait Database {
+trait Database[T] {
     def createData(key: String, value: String): String
 
     def deleteDataByKey(key: String): String
@@ -12,4 +12,5 @@ trait Database {
 
     def getDataByKey(key: String): String
 
+    def listData(): List[T]
 }

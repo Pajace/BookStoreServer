@@ -21,7 +21,7 @@ object BookStoreApi {
 
 class BookStoreController extends Controller {
 
-    val db: Database = new MemoryDatabase()
+    val db: Database[Book] = new MemoryDatabase()
     val gson = new Gson
 
     post(BookStoreApi.path_create) {

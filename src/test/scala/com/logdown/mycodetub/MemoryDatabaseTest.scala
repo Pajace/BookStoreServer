@@ -1,5 +1,7 @@
 package com.logdown.mycodetub
 
+import com.google.gson.Gson
+import com.logdown.mycodetub.data.Book
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
@@ -117,11 +119,34 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
     }
 
     it should "return empty string if get data failed" in {
-        val db: Database = new MemoryDatabase()
+        val db: Database[Book] = new MemoryDatabase()
 
         val actualResult = db.getDataByKey("what ever")
 
         actualResult should be(EmptyString)
     }
 
+    "listData" should "return data list" in {
+        val fakeDb = mutable.Map[String, String]()
+        val book1 = new Book(isbn = "9787512387744", name = "Scala 學習手冊", author = "Swartz, J.",
+            publishing = "OREILLY", version = "1st", price = 48.00)
+        val book2 = new Book(isbn = "9789869279987", name = "Growth Hack", author = "Xdite",
+            publishing = "PCuSER電腦人文化", version = "初版", price = 360.00)
+        val book3 = new Book(isbn = "9780981351656", name = "Programming in Scala, 2nd",
+            author = "Martin Odersky, Lex Spoon, Bill Venners",
+            publishing = "artima", version = "2nd", price = 69.95)
+        val gson = new Gson()
+        fakeDb.put(book1.isbn, gson.toJson(book1))
+        fakeDb.put(book2.isbn, gson.toJson(book2))
+        fakeDb.put(book3.isbn, gson.toJson(book3))
+
+        val expectedBookList: List[Book] = List[Book](book1, book2, book3)
+
+        val db: Database[Book] = new MemoryDatabase(fakeDb)
+        val actualBookList = db.listData()
+
+        for (book <- expectedBookList) {
+            actualBookList should contain(book)
+        }
+    }
 }

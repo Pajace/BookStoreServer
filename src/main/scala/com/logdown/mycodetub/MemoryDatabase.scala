@@ -1,12 +1,15 @@
 package com.logdown.mycodetub
 
+import com.google.gson.Gson
+import com.logdown.mycodetub.data.Book
+
 import scala.collection.mutable
 
 /**
   * Created by Pajace on 2016/6/5.
   */
 class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
-                     mutable.Map[String, String]()) extends Database {
+                     mutable.Map[String, String]()) extends Database[Book] {
 
     override def createData(key: String, value: String): String = {
         localMemoryDb.put(key, value)
@@ -24,4 +27,12 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
     }
 
     override def getDataByKey(key: String): String = localMemoryDb.getOrElse(key, "")
+
+    override def listData(): List[Book] = {
+        val gson = new Gson
+        val books = for (key <- localMemoryDb.keys) yield
+            gson.fromJson[Book](localMemoryDb.get(key).get, classOf[Book])
+        books.toList
+    }
+
 }
