@@ -116,5 +116,38 @@ class BookStoreControllerTest extends FeatureTest {
             )
         }
 
+        "response ok when delete book is success by using DELETE" in {
+            server.httpPost(
+                path = BookStoreApi.path_create,
+                postBody =
+                    """
+                      |{
+                      |"isbn":"9789869279000",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化",
+                      |"version":"初版",
+                      |"price":360.0
+                      |}
+                    """.stripMargin,
+                andExpect = Status.Created,
+                withLocation = "/bookstore/9789869279000")
+
+            server.httpDelete(
+                path = BookStoreApi.path_delete("9789869279000"),
+                withJsonBody =
+                    """
+                      |{
+                      |"isbn":"9789869279000",
+                      |"name":"Growth Hack",
+                      |"author":"Xdite",
+                      |"publishing":"PCuSER電腦人文化",
+                      |"version":"初版",
+                      |"price":360.0
+                      |}
+                    """.stripMargin,
+                andExpect = Status.Accepted
+            )
+        }
     }
 }

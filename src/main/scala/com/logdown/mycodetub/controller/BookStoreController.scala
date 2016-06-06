@@ -15,6 +15,8 @@ object BookStoreApi {
     def path_get(isbn: String) = s"/bookstore/${isbn}"
 
     def path_update = "/bookstore/update"
+
+    def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
 }
 
 class BookStoreController extends Controller {
@@ -39,6 +41,14 @@ class BookStoreController extends Controller {
             val bookJsonString = gson.toJson(book)
             db.updateData(book.isbn, bookJsonString)
             response.ok.location(s"/bookstore/${book.isbn}")
+    }
+
+    delete(BookStoreApi.path_delete(":isbn")) {
+        request: Request =>
+            val key = request.params("isbn")
+            println(s"delete key is : ${key}")
+            val deletedJson = db.deleteDataByKey(key)
+            response.accepted.body(deletedJson)
     }
 
 }
