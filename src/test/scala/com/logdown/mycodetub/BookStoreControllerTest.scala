@@ -40,7 +40,7 @@ class BookStoreControllerTest extends FeatureTest {
     }
 
     "GET" should {
-        "list book's information whe GET request is made" in {
+        s"list book's information when GET ${BookStoreApi.path_get("isbn")} request is made" in {
             val expectedIsbn = "9789869279987"
             val expectedBookJsonData =
                 s"""
@@ -67,6 +67,7 @@ class BookStoreControllerTest extends FeatureTest {
                 withJsonBody = expectedBookJsonData
             )
         }
+
     }
 
     "PUT" should {
