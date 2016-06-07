@@ -18,17 +18,23 @@ resolvers ++= Seq(
 )
 
 libraryDependencies += "com.twitter.finatra" % "finatra-http_2.11" % versions.finatra
-libraryDependencies +=  "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra
+
+// for serialized and deserialized json
+libraryDependencies += "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra
+
+// Finatra uses the SLF4J api for framework logging
 libraryDependencies += "com.twitter.finatra" % "finatra-slf4j_2.11" % versions.finatra
+
+// Twitter highly recommend using Logback as an SLF4J binding (logging implementation).
 libraryDependencies += "ch.qos.logback" % "logback-classic" % versions.logback
 
-libraryDependencies += "com.twitter.finatra" % "finatra-http_2.11" % versions.finatra % "test"
+//libraryDependencies += "com.twitter.finatra" % "finatra-http_2.11" % versions.finatra % "test"
 libraryDependencies += "com.twitter.inject" % "inject-server_2.11" % versions.finatra % "test"
 libraryDependencies += "com.twitter.inject" % "inject-app_2.11" % versions.finatra % "test"
 libraryDependencies += "com.twitter.inject" % "inject-core_2.11" % versions.finatra % "test"
 libraryDependencies += "com.twitter.inject" %% "inject-modules" % versions.finatra % "test"
 libraryDependencies += "com.google.inject.extensions" % "guice-testlib" % versions.guice % "test"
-libraryDependencies +=  "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra % "test"
+libraryDependencies += "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra % "test"
 
 libraryDependencies += "com.twitter.finatra" % "finatra-http_2.11" % versions.finatra % "test" classifier "tests"
 libraryDependencies += "com.twitter.inject" % "inject-server_2.11" % versions.finatra % "test" classifier "tests"
@@ -36,7 +42,7 @@ libraryDependencies += "com.twitter.inject" % "inject-app_2.11" % versions.finat
 libraryDependencies += "com.twitter.inject" % "inject-core_2.11" % versions.finatra % "test" classifier "tests"
 libraryDependencies += "com.twitter.inject" % "inject-modules_2.11" % versions.finatra % "test" classifier "tests"
 libraryDependencies += "com.google.inject.extensions" % "guice-testlib" % versions.guice % "test" classifier "tests"
-libraryDependencies += "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra % "test"  classifier "tests"
+libraryDependencies += "com.twitter.finatra" % "finatra-jackson_2.11" % versions.finatra % "test" classifier "tests"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % versions.scalatest % "test"
 libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"

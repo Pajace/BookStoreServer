@@ -14,6 +14,7 @@ class BookStoreServer extends HttpServer {
 
     override protected def configureHttp(router: HttpRouter): Unit = {
         router
+            .filter[CommonFilters]
             .add[WelcomeBookStoreController]
             .add[BookStoreController]
     }
