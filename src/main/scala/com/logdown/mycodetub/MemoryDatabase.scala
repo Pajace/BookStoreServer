@@ -11,7 +11,7 @@ import scala.collection.mutable
 class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
                      mutable.Map[String, String]()) extends Database[Book] {
 
-    override def createData(key: String, value: String): String = {
+    override def addData(key: String, value: String): String = {
         localMemoryDb.put(key, value)
         localMemoryDb.getOrElse(key, "")
     }

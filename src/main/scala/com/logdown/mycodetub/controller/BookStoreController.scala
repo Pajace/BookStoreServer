@@ -28,7 +28,7 @@ class BookStoreController extends Controller {
 
     post(BookStoreApi.path_create) {
         book: Book =>
-            db.createData(book.isbn, gson.toJson(book))
+            db.addData(book.isbn, gson.toJson(book))
             response.created.location(s"/bookstore/${book.isbn}")
     }
 

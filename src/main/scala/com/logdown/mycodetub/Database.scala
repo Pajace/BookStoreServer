@@ -4,7 +4,7 @@ package com.logdown.mycodetub
   * Created by Pajace on 2016/6/5.
   */
 trait Database[T] {
-    def createData(key: String, value: String): String
+    def addData(key: String, value: String): String
 
     def deleteDataByKey(key: String): String
 

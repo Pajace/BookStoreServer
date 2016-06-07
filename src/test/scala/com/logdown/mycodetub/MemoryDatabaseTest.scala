@@ -25,7 +25,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         val expectedKey = "0001"
 
         val db = new MemoryDatabase
-        val addedResult = db.createData(expectedKey, expectedData);
+        val addedResult = db.addData(expectedKey, expectedData);
 
         addedResult should be(expectedData)
     }
