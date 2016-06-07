@@ -35,7 +35,8 @@ class BookStoreController extends Controller {
     get(BookStoreApi.path_get(":isbn")) {
         request: Request =>
             val bookJsonString = db.getDataByKey(request.params("isbn"))
-            gson.fromJson[Book](bookJsonString, classOf[Book])
+            if (bookJsonString == "") response.notFound
+            else gson.fromJson[Book](bookJsonString, classOf[Book])
     }
 
     get(BookStoreApi.path_list) {

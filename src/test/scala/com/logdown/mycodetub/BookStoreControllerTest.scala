@@ -68,6 +68,13 @@ class BookStoreControllerTest extends FeatureTest {
                 withJsonBody = expectedBookJsonData
             )
         }
+
+        "response NotFound, if book's isbn of request is not exist " in {
+            val notFoundIsbn = "1234567890123"
+            server.httpGet(
+                path = BookStoreApi.path_get(notFoundIsbn),
+                andExpect = Status.NotFound)
+        }
     }
 
     "PUT" should {
