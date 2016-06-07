@@ -23,33 +23,33 @@ class BookStoreListTest extends FeatureTest {
                 """
                   |{
                   |"isbn":"1111111111111",
-                  |"name":"Growth Hack",
-                  |"author":"Xdite",
-                  |"publishing":"PCuSER電腦人文化",
-                  |"version":"初版",
-                  |"price":360.0
+                  |"name":"Programmin in Scala",
+                  |"author":"Martin, Odersky, Lex Spoon, and Bill Venners",
+                  |"publishing":"Artima",
+                  |"version":"2nd ed.",
+                  |"price":34.90
                   |}
                 """.stripMargin
             val book2 =
                 """
                   |{
                   |"isbn":"2222222222222",
-                  |"name":"引誘科學",
-                  |"author":"Ben Parr",
-                  |"publishing":"三采",
-                  |"version":"初版",
-                  |"price":284.0
+                  |"name":"SCALA for the Impatient",
+                  |"author":"Cay S. Horstmann",
+                  |"publishing":"Addison-Wesley",
+                  |"version":"1st ed.",
+                  |"price":49.99
                   |}
                 """.stripMargin
             val book3 =
                 """
                   |{
                   |"isbn":"3333333333333",
-                  |"name":"引誘科學2",
-                  |"author":"Ben Parr",
-                  |"publishing":"三采",
-                  |"version":"初版",
-                  |"price":284.0
+                  |"name":"Functional Programmin in Scala",
+                  |"author":"Paul Chiusano, Runar Bjarnason",
+                  |"publishing":"Manning Publications",
+                  |"version":"1 ed.",
+                  |"price":44.99
                   |}
                 """.stripMargin
 

@@ -1,8 +1,8 @@
 {
-	"isbn":"9787512387744",
-	"name":"Scala 學習手冊",
-	"author":"Swartz, J.",
-	"publishing":"OREILLY",
-	"version":"初版",
-	"price":48.00
+	"isbn":"978-0981531687",
+	"name":"Programming in Scala: Updated for Scala 2.12",
+	"author":"Martin Odersky, Lex Spoon",
+	"publishing":"Artima Press",
+	"version":"3rd ed.",
+	"price":54.95
 }
