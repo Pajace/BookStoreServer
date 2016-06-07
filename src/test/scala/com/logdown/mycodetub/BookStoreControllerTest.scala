@@ -156,6 +156,11 @@ class BookStoreControllerTest extends FeatureTest {
                 withJsonBody = expectedBookData,
                 andExpect = Status.Accepted
             )
+
+            server.httpGet(
+                path = BookStoreApi.path_get(expectedIsbn),
+                andExpect = Status.NotFound
+            )
         }
 
         "response \"BadRequest\", when delete key isn't exist" in {
