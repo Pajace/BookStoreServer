@@ -43,6 +43,19 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         actualResult should not be EmptyString
     }
 
+    it should "delete data, if delete data is success" in {
+        val expectedKey = "expectedKey"
+        val expectedData = "AnyData"
+
+        val fakeDb = mutable.Map[String, String]()
+        fakeDb.put(expectedKey, expectedData)
+
+        val db = new MemoryDatabase(fakeDb)
+        db.deleteDataByKey(expectedKey)
+
+        db.getDataByKey(expectedKey) should be (EmptyString)
+    }
+
     it should "return empty String, if delete data is failed" in {
         val db = new MemoryDatabase()
         val keyOfNoData = "whatEver"
