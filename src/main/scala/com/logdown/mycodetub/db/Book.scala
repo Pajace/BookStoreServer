@@ -1,4 +1,4 @@
-package com.logdown.mycodetub.data
+package com.logdown.mycodetub.db
 
 import com.twitter.finatra.validation.NotEmpty
 

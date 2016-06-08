@@ -1,7 +1,7 @@
 package com.logdown.mycodetub
 
 import com.google.gson.Gson
-import com.logdown.mycodetub.data.Book
+import com.logdown.mycodetub.db.{Book, Database, MemoryDatabase}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
