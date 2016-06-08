@@ -1,21 +1,29 @@
 package com.logdown.mycodetub
 
+import com.google.gson.Gson
 import com.google.inject.Stage
+import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
+import com.twitter.inject.Mockito
 import com.twitter.inject.server.FeatureTest
+import com.twitter.util.Future
 
 /**
   * Created by pajace_chen on 2016/6/6.
   */
-class BookStoreListTest extends FeatureTest {
+class BookStoreListTest extends FeatureTest with Mockito {
 
     override val server = new EmbeddedHttpServer(
         twitterServer = new BookStoreServer,
         stage = Stage.DEVELOPMENT,
         verbose = true)
+
+    @Bind
+    @MemoryDatabase
+    val memoryDatabase = mock[Database[Book]]
 
     "GET" should {
         s"list all books information when GET ${BookStoreApi.path_list} request is made" in {
@@ -53,17 +61,18 @@ class BookStoreListTest extends FeatureTest {
                   |}
                 """.stripMargin
 
-            server.httpPost(path = BookStoreApi.path_create,
-                postBody = book1, andExpect = Status.Created)
-            server.httpPost(path = BookStoreApi.path_create,
-                postBody = book2, andExpect = Status.Created)
-            server.httpPost(path = BookStoreApi.path_create,
-                postBody = book3, andExpect = Status.Created)
+            val gson = new Gson
+            val expectedResult = List[Book](
+                gson.fromJson(book1, classOf[Book]),
+                gson.fromJson(book2, classOf[Book]),
+                gson.fromJson(book3, classOf[Book]))
+
+            memoryDatabase.listData().returns(expectedResult)
 
             server.httpGetJson[List[Book]](
                 path = BookStoreApi.path_list,
                 andExpect = Status.Ok,
-                withJsonBody = s"[${book2}, ${book3}, ${book1}]"
+                withJsonBody = s"[${book1}, ${book2}, ${book3}]"
             )
         }
     }

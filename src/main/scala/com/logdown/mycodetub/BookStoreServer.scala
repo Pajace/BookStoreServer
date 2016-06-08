@@ -12,6 +12,8 @@ object BookStoreServerMain extends BookStoreServer
 
 class BookStoreServer extends HttpServer {
 
+    override val modules = Seq(DatabaseModule)
+
     override protected def configureHttp(router: HttpRouter): Unit = {
         router
             .filter[CommonFilters]

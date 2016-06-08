@@ -1,8 +1,9 @@
 package com.logdown.mycodetub.controller
 
 import com.google.gson.Gson
+import com.google.inject.Inject
+import com.logdown.mycodetub.Database
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.{Database, MemoryDatabase}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 
@@ -21,9 +22,8 @@ object BookStoreApi {
     def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
 }
 
-class BookStoreController extends Controller {
+class BookStoreController @Inject()(db: Database[Book]) extends Controller {
 
-    val db: Database[Book] = new MemoryDatabase()
     val gson = new Gson
 
     post(BookStoreApi.path_create) {
