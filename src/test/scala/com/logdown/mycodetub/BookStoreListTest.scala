@@ -23,7 +23,7 @@ class BookStoreListTest extends FeatureTest with Mockito {
 
     @Bind
     @MemoryDatabase
-    val memoryDatabase = mock[Database[Book]]
+    val memoryDatabase = mock[Database[Book, String]]
 
     "GET" should {
         s"list all books information when GET ${BookStoreApi.path_list} request is made" in {

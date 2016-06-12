@@ -22,7 +22,7 @@ object BookStoreApi {
     def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
 }
 
-class BookStoreController @Inject()(db: Database[Book]) extends Controller {
+class BookStoreController @Inject()(db: Database[Book, String]) extends Controller {
 
     val gson = new Gson
 

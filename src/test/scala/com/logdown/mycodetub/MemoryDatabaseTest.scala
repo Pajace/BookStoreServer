@@ -132,7 +132,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
     }
 
     it should "return empty string if get data failed" in {
-        val db: Database[Book] = new MemoryDatabase()
+        val db: Database[Book, String] = new MemoryDatabase()
 
         val actualResult = db.getDataByKey("what ever")
 
@@ -155,7 +155,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
 
         val expectedBookList: List[Book] = List[Book](book1, book2, book3)
 
-        val db: Database[Book] = new MemoryDatabase(fakeDb)
+        val db: Database[Book, String] = new MemoryDatabase(fakeDb)
         val actualBookList = db.listData()
 
         for (book <- expectedBookList) {
