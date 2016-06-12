@@ -10,6 +10,7 @@ lazy val versions = new {
     val guice = "4.0"
     val specs2 = "2.3.12"
     val scalatest = "2.2.6"
+    val mongo_driver = "1.1.1"
 }
 
 resolvers ++= Seq(
@@ -49,3 +50,9 @@ libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"
 
 // http://mvnrepository.com/artifact/com.google.code.gson/gson
 libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
+
+// MongoDB Scala Driver
+// http://mongodb.github.io/mongo-scala-driver/1.0/getting-started/installation-guide/
+// http://mvnrepository.com/artifact/org.mongodb.scala/mongo-scala-driver_2.11
+//libraryDependencies += "org.mongodb.scala" % "mongo-scala-driver_2.11" % "1.1.1"
+libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver
