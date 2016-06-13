@@ -22,7 +22,7 @@ object BookStoreApi {
 }
 
 @Singleton
-class BookStoreController @Inject()(db: Database[Book]) extends Controller {
+class BookStoreController @Inject()(db: Database[Book, String]) extends Controller {
 
     val gson = new Gson
 
