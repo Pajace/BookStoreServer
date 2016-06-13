@@ -1,7 +1,6 @@
-package com.logdown.mycodetub
+package com.logdown.mycodetub.db
 
 import com.google.inject.{Provides, Singleton}
-import com.logdown.mycodetub.data.Book
 import com.twitter.inject.TwitterModule
 
 /**

@@ -1,9 +1,8 @@
 package com.logdown.mycodetub.controller
 
 import com.google.gson.Gson
-import com.google.inject.Inject
-import com.logdown.mycodetub.Database
-import com.logdown.mycodetub.data.Book
+import com.google.inject.{Inject, Singleton}
+import com.logdown.mycodetub.db.{Book, Database}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 
@@ -22,7 +21,8 @@ object BookStoreApi {
     def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
 }
 
-class BookStoreController @Inject()(db: Database[Book, String]) extends Controller {
+@Singleton
+class BookStoreController @Inject()(db: Database[Book]) extends Controller {
 
     val gson = new Gson
 

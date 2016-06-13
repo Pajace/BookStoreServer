@@ -1,4 +1,4 @@
-package com.logdown.mycodetub
+package com.logdown.mycodetub.db
 
 /**
   * Created by Pajace on 2016/6/5.

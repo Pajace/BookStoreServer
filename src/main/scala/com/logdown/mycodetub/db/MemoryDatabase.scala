@@ -1,7 +1,6 @@
-package com.logdown.mycodetub
+package com.logdown.mycodetub.db
 
 import com.google.gson.Gson
-import com.logdown.mycodetub.data.Book
 
 import scala.collection.mutable
 
