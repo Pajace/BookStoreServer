@@ -56,3 +56,5 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 // http://mvnrepository.com/artifact/org.mongodb.scala/mongo-scala-driver_2.11
 //libraryDependencies += "org.mongodb.scala" % "mongo-scala-driver_2.11" % "1.1.1"
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver
+libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver % "test"
+

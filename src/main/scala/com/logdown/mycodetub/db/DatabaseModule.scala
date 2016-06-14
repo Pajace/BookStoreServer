@@ -10,7 +10,7 @@ object DatabaseModule extends TwitterModule {
 
     @Singleton
     @Provides
-    def providesDatabase: Database[Book, String] = {
+    def providesDatabase: Database[Book] = {
         new MemoryDatabase()
     }
 }

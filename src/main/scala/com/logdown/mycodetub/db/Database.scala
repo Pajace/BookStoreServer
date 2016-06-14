@@ -6,14 +6,13 @@ package com.logdown.mycodetub.db
 /**
   * Database
   * @tparam T value type
-  * @tparam T1 operations return type
   */
-trait Database[T, T1] {
-    def addData(key: String, value: String): T1
+trait Database[T] {
+    def addData(key: String, value: String): Any
 
-    def deleteDataByKey(key: String): T1
+    def deleteDataByKey(key: String): Any
 
-    def updateData(key: String, value: String): T1
+    def updateData(key: String, value: String): Any
 
     def getDataByKey(key: String): String
 

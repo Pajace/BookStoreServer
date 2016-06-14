@@ -8,7 +8,7 @@ import scala.collection.mutable
   * Created by Pajace on 2016/6/5.
   */
 class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
-                     mutable.Map[String, String]()) extends Database[Book, String] {
+                     mutable.Map[String, String]()) extends Database[Book] {
 
     override def addData(key: String, value: String): String = {
         localMemoryDb.put(key, value)
