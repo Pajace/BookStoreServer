@@ -51,6 +51,9 @@ libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"
 // http://mvnrepository.com/artifact/com.google.code.gson/gson
 libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 
+// http://scalamock.org/quick-start/
+libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2.2" % "test"
+
 // MongoDB Scala Driver
 // http://mongodb.github.io/mongo-scala-driver/1.0/getting-started/installation-guide/
 // http://mvnrepository.com/artifact/org.mongodb.scala/mongo-scala-driver_2.11
@@ -58,3 +61,10 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver % "test"
 
+
+// https://github.com/SimplyScala/scalatest-embedmongo
+libraryDependencies += "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
+
+// https://github.com/spray/spray-json
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
+libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2" % "test"

@@ -10,4 +10,14 @@ case class Book(@NotEmpty isbn: String,
                 author: String,
                 publishing: String,
                 version: String,
-                price: Double)
+                price: Double){
+
+}
+
+object Book {
+    val Key_Isbn = "isbn"
+    val Key_Author = "author"
+    val Key_Publishing = "publishing"
+    val Key_Version = "version"
+    val Key_Price = "price"
+}

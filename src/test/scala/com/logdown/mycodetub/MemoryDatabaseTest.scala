@@ -13,7 +13,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
 
     val EmptyString = ""
 
-    "CreateData" should "return created value after creat data in" in {
+    "CreateData" should "return created value after created data in" in {
         val expectedData =
             """
               |{

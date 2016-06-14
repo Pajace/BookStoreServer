@@ -1,11 +1,13 @@
+import com.twitter.finatra.validation._
 
-case class Book(isbn: String, name: String, author: String, publishing: String, version: String, price: Double)
+case class Book(@NotEmpty isbn: String,
+                name: String,
+                author: String,
+                publishing: String,
+                version: String,
+                price: Double) {
+    val Key_Isbn = isbn.getClass.
+}
 
-val expectedBook = new Book(isbn = "9787512387744",
-    name = "Scala 學習手冊",
-    author = "Swartz, J.",
-    publishing = "OREILLY",
-    version = "初版",
-    price = 48.00)
-
-val bookString = expectedBook.toString
+val b = new Book("", "", "", "", "", 999)
+b.Key_Isbn
