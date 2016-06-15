@@ -12,13 +12,13 @@ import com.twitter.finatra.http.Controller
 object BookStoreApi {
     def path_create = "/bookstore/add"
 
-    def path_get(isbn: String) = s"/bookstore/${isbn}"
+    def path_get(isbn: String) = s"/bookstore/$isbn"
 
-    def path_list() = "/bookstore/list"
+    val path_list = "/bookstore/list"
 
-    def path_update = "/bookstore/update"
+    val path_update = "/bookstore/update"
 
-    def path_delete(isbn: String) = s"/bookstore/delete/${isbn}"
+    def path_delete(isbn: String) = s"/bookstore/delete/$isbn"
 }
 
 @Singleton
@@ -30,6 +30,7 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
         book: Book =>
             db.addData(book.isbn, gson.toJson(book))
             response.created.location(s"/bookstore/${book.isbn}")
+            "add_success"
     }
 
     get(BookStoreApi.path_get(":isbn")) {

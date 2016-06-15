@@ -8,11 +8,11 @@ package com.logdown.mycodetub.db
   * @tparam T value type
   */
 trait Database[T] {
-    def addData(key: String, value: String): Any
+    def addData(key: String, value: String): String
 
-    def deleteDataByKey(key: String): Any
+    def deleteDataByKey(key: String): String
 
-    def updateData(key: String, value: String): Any
+    def updateData(key: String, value: String): String
 
     def getDataByKey(key: String): String
 
