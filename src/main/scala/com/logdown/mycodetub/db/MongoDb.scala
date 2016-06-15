@@ -3,19 +3,10 @@ package com.logdown.mycodetub.db
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
-import com.mongodb.async.client.Observable
+import org.mongodb.scala.{MongoClient, _}
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
-import org.mongodb.scala.{Completed, MongoClient}
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import com.mongodb.client.model.UpdateOptions
-import org.mongodb.scala._
-import org.mongodb.scala.bson.BsonString
-import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Projections._
-import org.mongodb.scala.model.Updates._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
