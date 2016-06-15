@@ -2,14 +2,12 @@ package com.logdown.mycodetub
 
 import java.util.concurrent.TimeUnit
 
-import com.github.simplyscala.{MongoEmbedDatabase, MongodProps}
 import com.google.gson.Gson
 import com.logdown.mycodetub.db.{Book, Database, MongoDb, MongoDbConnector}
-import org.mongodb.scala.Completed
-import org.scalatest.{BeforeAndAfter, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 import spray.json._
 
-import scala.concurrent.{Await, Future, Promise}
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 /**
@@ -19,6 +17,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     val testCollection = MongoDbConnector.fetchCollection("test")
     val mongoDb: Database[Book] = new MongoDb(testCollection)
+    val EmptyString = ""
 
     override protected def beforeEach(): Unit = {
         super.beforeEach()
@@ -189,4 +188,17 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         actualBookList.foreach((b: Book) => expectedBookList should contain(b))
     }
 
+    "deleteData" should "not return empty String if delete is success" in {
+        mongoDb.addData("", booksData(0))
+
+        val deleteResult = mongoDb.deleteDataByKey("9789863476733")
+
+        deleteResult should not be EmptyString
+    }
+
+    it should "return empty string, if delete is failed" in {
+        val deleteResult = mongoDb.deleteDataByKey("non_exist_key")
+
+        deleteResult should be (EmptyString)
+    }
 }

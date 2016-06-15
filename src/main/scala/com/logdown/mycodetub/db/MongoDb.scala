@@ -46,7 +46,11 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         }
     }
 
-    override def deleteDataByKey(isbn: String): Observable[Completed] = ???
+    override def deleteDataByKey(isbn: String): String = {
+        val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
+        val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
+        if (deleteResult.head.getDeletedCount == 1) "Delete_Success" else ""
+    }
 
     override def updateData(isbn: String, value: String): String = {
         val document: Document = Document.apply(value)
