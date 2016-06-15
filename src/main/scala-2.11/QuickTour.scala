@@ -1,17 +1,13 @@
 import java.util.concurrent.TimeUnit
 
+import com.google.gson.Gson
 import com.logdown.mycodetub.db.{Book, MongoDb}
+import com.mongodb.client.result.DeleteResult
 import org.mongodb.scala._
 import org.mongodb.scala.model.Filters
+import org.mongodb.scala.model.Projections._
 
 import scala.concurrent.duration.Duration
-import org.mongodb.scala.model.Updates._
-import org.mongodb.scala.model.Filters._
-import org.mongodb.scala.result.UpdateResult
-import spray.json._
-import DefaultJsonProtocol._
-import com.google.gson.Gson
-
 import scala.concurrent.{Await, Future, Promise}
 
 /**
@@ -47,6 +43,14 @@ object QuickTour {
         promise
     }
 
+    def insert10BooksOneByOne(collection: MongoCollection[Document]): Unit = {
+        booksData.foreach(b =>
+            showPinWheel(
+                insertOne(collection, Document.apply(b), Promise[Completed]()).future
+            )
+        )
+    }
+
 
     private def showPinWheel(someFuture: Future[_]): Unit = {
         val spinChars = List("|", "/", "-", "\\")
@@ -61,84 +65,20 @@ object QuickTour {
         Console.err.println("")
     }
 
-    def main(args: Array[String]): Unit = {
-        val mongoClient: MongoClient = MongoClient("mongodb://10.8.33.30:27017/")
-
-        println("=====> " + mongoClient.settings.getClusterSettings.getHosts.get(0).toString)
-
-        println("getDatabase(bookstore)")
-        val database: MongoDatabase = mongoClient.getDatabase("bookstore")
-
-        val collection: MongoCollection[Document] = database.getCollection("test")
-
-        //        val doc: Document = Document(
-        //            "name" -> "MongoDB",
-        //            "type" -> "database",
-        //            "count" -> 1,
-        //            "info" -> Document("x" -> 203, "y" -> 102)
-        //        )
-
-        //        val booksDataDocuments = booksData.map(_ => Document.apply())
-
-
-        val promise = Promise[Completed]
-
+    private def deleteOne(collection: MongoCollection[Document], deleteKey: String) = {
         println("*" * 300)
+        val delete = collection.deleteOne(Filters.eq("isbn", "9789863475385"))
+        val r = Await.result(delete.toFuture(), Duration(10, TimeUnit.SECONDS))
+        println("delete result : getDeletedCount => " + r.head.getDeletedCount)
+        println("*" * 300)
+    }
 
-
-        //        collection.drop().subscribe(
-        //            (completed:Completed)=>promise.success(completed),
-        //            (failed:Throwable)=>promise.failure(failed)
-        //        )
-        //        showPinWheel(promise.future)
-        //        collection.drop().toFuture()
-
-        // insert one
-        //                booksData.foreach(b =>
-        //                    showPinWheel(
-        //                        insertOne(collection, Document.apply(b), Promise[Completed]()).future
-        //                    )
-        //                )
-
-        //        val result = Await.result(collection.insertOne(Document.apply(booksData(0))).toFuture(), Duration(10, TimeUnit.SECONDS))
-        //        println("XX"*100)
-        //        println(result.foreach((f:Completed) => f.))
-        //        println("XX"*100)
-
-
-        //        val db = new MongoDb
-        //        println("XX" * 100)
-        //        println(db.addData("", booksData(2)))
-        //        println("XX" * 100)
-
-        //        val booksDocuments: List[Document] = booksData.map(b => Document.apply(b))
-        //        val futures = collection.insertMany(booksDocuments).toFuture()
-        //        showPinWheel(futures)
-
-        //        val insertDocument = insertOne(collection, doc2, Promise[Completed]()).future
-        //        showPinWheel(insertDocument)
-
-        //        collection.insertMany(booksDataDocuments).subscribe(
-        //            (completed:Completed) => promise.success(completed),
-        //            (failed:Throwable) => promise.failure(failed)
-        //        )
-        //
-        //        val insertManyPromise = promise.future
-        //        showPinWheel(insertManyPromise)
-
-
-        //        collection.insertOne(doc).subscribe(
-        //            (completed:Completed) => promise.success(completed),
-        //            (failed:Throwable) => promise.failure(failed)
-        //        )
-
-        //        val docForAdd = Document.apply(booksData(0))
-
-
-        // =====================================================================
-        //        val findAll = collection.find()
-        //        val allDatas = Await.result(findAll.toFuture(), Duration(10, TimeUnit.SECONDS))
-        //        allDatas.foreach(d=> println(d.toJson()))
+    private def finalAll(collection: MongoCollection[Document]) = {
+        val findAll = collection.find().projection(excludeId())
+        val allDatas = Await.result(findAll.toFuture(), Duration(10, TimeUnit.SECONDS))
+        //        allDatas.foreach(d => println(d.toJson()))
+        val result = allDatas.map(_ toJson())
+        result.foreach(println _)
 
         //        collection.find().subscribe((doc: Document) => println(doc.toJson()))
 
@@ -186,11 +126,83 @@ object QuickTour {
         //            override def onComplete(): Unit = println("="* 100 + " Completed")
         //
         //        })
+    }
 
-//        val db = new MongoDb
-//        println("XX" * 100)
-//        println(db.getDataByKey("9789862729717"))
-//        println("XX" * 100)
+    def main(args: Array[String]): Unit = {
+        val mongoClient: MongoClient = MongoClient("mongodb://10.8.33.30:27017/")
+
+        println("=====> " + mongoClient.settings.getClusterSettings.getHosts.get(0).toString)
+
+        println("getDatabase(bookstore)")
+        val database: MongoDatabase = mongoClient.getDatabase("bookstore")
+
+        val collection: MongoCollection[Document] = database.getCollection("test")
+
+        //        val doc: Document = Document(
+        //            "name" -> "MongoDB",
+        //            "type" -> "database",
+        //            "count" -> 1,
+        //            "info" -> Document("x" -> 203, "y" -> 102)
+        //        )
+
+        //        val booksDataDocuments = booksData.map(_ => Document.apply())
+
+
+        val promise = Promise[Completed]
+
+
+
+
+        //        collection.drop().subscribe(
+        //            (completed:Completed)=>promise.success(completed),
+        //            (failed:Throwable)=>promise.failure(failed)
+        //        )
+        //        showPinWheel(promise.future)
+        //        collection.drop().toFuture()
+
+        //        insert10BooksOneByOne(collection)
+
+        //        finalAll(collection)
+
+        //        val result = Await.result(collection.insertOne(Document.apply(booksData(0))).toFuture(), Duration(10, TimeUnit.SECONDS))
+        //        println("XX"*100)
+        //        println(result.foreach((f:Completed) => f.))
+        //        println("XX"*100)
+
+
+        //        val db = new MongoDb
+        //        println("XX" * 100)
+        //        println(db.addData("", booksData(2)))
+        //        println("XX" * 100)
+
+        //        val booksDocuments: List[Document] = booksData.map(b => Document.apply(b))
+        //        val futures = collection.insertMany(booksDocuments).toFuture()
+        //        showPinWheel(futures)
+
+        //        val insertDocument = insertOne(collection, doc2, Promise[Completed]()).future
+        //        showPinWheel(insertDocument)
+
+        //        collection.insertMany(booksDataDocuments).subscribe(
+        //            (completed:Completed) => promise.success(completed),
+        //            (failed:Throwable) => promise.failure(failed)
+        //        )
+        //
+        //        val insertManyPromise = promise.future
+        //        showPinWheel(insertManyPromise)
+
+
+        //        collection.insertOne(doc).subscribe(
+        //            (completed:Completed) => promise.success(completed),
+        //            (failed:Throwable) => promise.failure(failed)
+        //        )
+
+        //        val docForAdd = Document.apply(booksData(0))
+
+
+        //        val db = new MongoDb
+        //        println("XX" * 100)
+        //        println(db.getDataByKey("9789862729717"))
+        //        println("XX" * 100)
 
         // replace  ---
         //        val replaceBookDocument : Document = Document("price"->999.9)
@@ -199,20 +211,20 @@ object QuickTour {
         //        )
 
         // update ---
-        val addedBook = addTestData(3)
-//        collection.updateOne(Filters.eq("isbn", isbn), set[Double]("price", 888.9)).subscribe(
-//            (updateResult: UpdateResult) => println(updateResult.toString)
-//        )
-        val db = new MongoDb
-        println("XX" * 100)
-        val gson = new Gson
-        val bookJsonString = gson.toJson(addedBook).replace("380", "999")
-        println(db.updateData(addedBook.isbn, bookJsonString))
-        println("XX" * 100)
+        //        val addedBook = addTestData(3)
+        //        collection.updateOne(Filters.eq("isbn", isbn), set[Double]("price", 888.9)).subscribe(
+        //            (updateResult: UpdateResult) => println(updateResult.toString)
+        //        )
+        //        val db = new MongoDb
+        //        println("XX" * 100)
+        //        val gson = new Gson
+        //        val bookJsonString = gson.toJson(addedBook).replace("380", "999")
+        //        println(db.updateData(addedBook.isbn, bookJsonString))
+        //        println("XX" * 100)
 
 
         //        showPinWheel()
-//        Thread.sleep(1000)
+        //        Thread.sleep(1000)
         //        val promise = Promise[Seq[T]]()
         //        collect().subscribe((l: Seq[T]) => promise.success(l), (t: Throwable) => promise.failure(t))
         //        promise.future
@@ -222,9 +234,9 @@ object QuickTour {
         //            (failed:Throwable)=>promise.failure(failed)
         //        ) //.foreach(doc=> println(doc.toJson()))
 
-
         mongoClient.close()
     }
+
 
     val booksData = List(
         """
@@ -329,7 +341,7 @@ object QuickTour {
         """.stripMargin
     )
 
-    def addTestData(index: Int) :Book = {
+    def addTestData(index: Int): Book = {
         val db = new MongoDb
         println("XX" * 100)
         println(db.addData("", booksData(index)))
