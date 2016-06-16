@@ -179,14 +179,12 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     "listData" should "return all books list" in {
         info("add 10 books into mongo db")
-        booksData.foreach(b => MongoDb.addData("", b))
+        val expectedBookList:List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
 
-        val expectedBookList: List[Book] = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
+        val booksListFromDB: List[Book] = MongoDb.listData()
 
-        val actualBookList: List[Book] = MongoDb.listData()
-
-        actualBookList.size should be(10)
-        actualBookList.foreach((b: Book) => expectedBookList should contain(b))
+        booksListFromDB.size should be(10)
+        booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
     }
 
     "deleteData" should "return DELETE_SUCCESS after delete success" in {
@@ -199,5 +197,10 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     it should "return DELETE_FAILED, after delete failed" in {
         MongoDb.deleteDataByKey("non_exist_key") should be ("DELETE_FAILED")
+    }
+
+    private def Add10BooksIntoMongoDbAndReturnBooksList() = {
+        booksData.foreach(MongoDb.addData("", _))
+        booksData.map((b:String) => gson.fromJson(b, classOf[Book]))
     }
 }
