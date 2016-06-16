@@ -156,7 +156,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         expected should be(actual)
     }
 
-    "updateData" should "update book data " in {
+    "updateData" should "return UPDATE_SUCCESS after update success" in {
         val bookIsbn = "9789863791621"
         val bookJson =
             s"""
@@ -173,13 +173,21 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         MongoDb.getDataByKey(bookIsbn).parseJson should be(bookJson.parseJson)
 
         val expected = bookJson.replace("初版", "再版").replace("560", "888")
-        MongoDb.updateData(bookIsbn, expected)
+        val updateResult = MongoDb.updateData(bookIsbn, expected)
         MongoDb.getDataByKey(bookIsbn).parseJson should be(expected.parseJson)
+
+        updateResult should be("UPDATE_SUCCESS")
+    }
+
+    it should "return UPDATE_FAILED after no data for update" in {
+        val updateResult = MongoDb.updateData("not_exist_key", "any data")
+
+        updateResult.split(":") should contain ("UPDATE_FAILED")
     }
 
     "listData" should "return all books list" in {
         info("add 10 books into mongo db")
-        val expectedBookList:List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
+        val expectedBookList: List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
 
         val booksListFromDB: List[Book] = MongoDb.listData()
 
@@ -188,23 +196,23 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
     }
 
     it should "return empty list, if there is no book" in {
-        MongoDb.listData().size should be (0)
+        MongoDb.listData().size should be(0)
     }
 
     "deleteData" should "return DELETE_SUCCESS after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
-        MongoDb.addData("", booksData(0)) should be ("INSERT_OK")
+        MongoDb.addData("", booksData(0)) should be("INSERT_OK")
 
         info("delete book from MongoDB")
         MongoDb.deleteDataByKey("9789863476733") should be("DELETE_SUCCESS")
     }
 
     it should "return DELETE_FAILED, after delete failed" in {
-        MongoDb.deleteDataByKey("non_exist_key") should be ("DELETE_FAILED")
+        MongoDb.deleteDataByKey("non_exist_key") should be("DELETE_FAILED")
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
         booksData.foreach(MongoDb.addData("", _))
-        booksData.map((b:String) => gson.fromJson(b, classOf[Book]))
+        booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
     }
 }

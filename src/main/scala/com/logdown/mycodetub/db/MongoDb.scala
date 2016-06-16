@@ -3,6 +3,7 @@ package com.logdown.mycodetub.db
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
+import org.bson.json.JsonParseException
 import org.mongodb.scala.{MongoClient, _}
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
@@ -11,6 +12,7 @@ import org.mongodb.scala.model.Projections._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
+import com.twitter.inject.Logging
 
 object MongoDbConnector {
     private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
@@ -23,7 +25,7 @@ object MongoDbConnector {
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Database[Book] {
+class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with  Database[Book] {
 
     override def addData(isbn: String, bookJsonString: String): String = {
         try {
@@ -44,11 +46,16 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
     }
 
     override def updateData(isbn: String, value: String): String = {
-        val document: Document = Document.apply(value)
+        val document: Document = createDocumentByJsonString(value).orNull
+        if (document == null) return "UPDATE_FAILED: json parse failed."
 
         val update = collection.replaceOne(Filters.eq("isbn", isbn), document)
 
-        Await.result(update.head(), Duration(10, TimeUnit.SECONDS)).toString
+        val updateResult = Await.result(update.head(), Duration(10, TimeUnit.SECONDS))
+        (updateResult.getMatchedCount, updateResult.getModifiedCount) match {
+            case (1, 1) => "UPDATE_SUCCESS"
+            case _ => "UPDATE_FAILED"
+        }
     }
 
     override def listData(): List[Book] = {
@@ -69,6 +76,16 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
             case illEx: IllegalStateException =>
                 println("Error" + illEx.getMessage)
                 ""
+        }
+    }
+
+    private def createDocumentByJsonString(jsonString: String): Option[Document] = {
+        try {
+            Option.apply(Document.apply(jsonString))
+        } catch {
+            case ex: JsonParseException =>
+                error("createDocumentByJsonString => " + ex.getMessage)
+                None
         }
     }
 }

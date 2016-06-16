@@ -28,6 +28,7 @@ libraryDependencies += "com.twitter.finatra" % "finatra-slf4j_2.11" % versions.f
 
 // Twitter highly recommend using Logback as an SLF4J binding (logging implementation).
 libraryDependencies += "ch.qos.logback" % "logback-classic" % versions.logback
+libraryDependencies += "org.clapper" %% "grizzled-slf4j" % "1.0.2"
 
 //libraryDependencies += "com.twitter.finatra" % "finatra-http_2.11" % versions.finatra % "test"
 libraryDependencies += "com.twitter.inject" % "inject-server_2.11" % versions.finatra % "test"
