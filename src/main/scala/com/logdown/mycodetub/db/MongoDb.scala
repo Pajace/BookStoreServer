@@ -11,8 +11,8 @@ import org.mongodb.scala.model.Projections._
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-
 import com.twitter.inject.Logging
+import org.bson.BsonInvalidOperationException
 
 object MongoDbConnector {
     private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
@@ -25,18 +25,20 @@ object MongoDbConnector {
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with  Database[Book] {
+class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with Database[Book] {
 
     override def addData(isbn: String, bookJsonString: String): String = {
-        try {
-            val bookDocument = Document.apply(bookJsonString)
-            val insertFuture = collection.insertOne(bookDocument).toFuture()
+        //        try {
+        val bookDocument = createDocumentByJsonString(bookJsonString).orNull
+        if (bookDocument == null) return "INSERT_FAILED"
 
-            Await.result(insertFuture, Duration(10, TimeUnit.SECONDS))
+        val insertFuture = collection.insertOne(bookDocument).toFuture()
+
+        val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
+        if (addResult.contains("successfully"))
             "INSERT_OK"
-        } catch {
-            case ex: Exception => ex.getMessage
-        }
+        else
+            "INSERT_FAILED"
     }
 
     override def deleteDataByKey(isbn: String): String = {
@@ -84,6 +86,9 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
             Option.apply(Document.apply(jsonString))
         } catch {
             case ex: JsonParseException =>
+                error("createDocumentByJsonString => " + ex.getMessage)
+                None
+            case ex: BsonInvalidOperationException =>
                 error("createDocumentByJsonString => " + ex.getMessage)
                 None
         }

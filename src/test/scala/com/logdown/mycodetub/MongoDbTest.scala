@@ -149,11 +149,19 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
               |}
             """.stripMargin
         val addResult = MongoDb.addData("", expectedBookJsonString)
-        addResult should be ("INSERT_OK")
+        addResult should be("INSERT_OK")
 
         val expected = expectedBookJsonString.parseJson
         val actual = MongoDb.getDataByKey("9789863791621").parseJson
         expected should be(actual)
+    }
+
+    it should "return INSERT_FAILED, if input json string is not valid" in {
+        MongoDb.addData("", "a") should be("INSERT_FAILED")
+    }
+
+    it should "return INSERT_FAILED, if input json string is empty string" in {
+        MongoDb.addData("", "") should be("INSERT_FAILED")
     }
 
     "updateData" should "return UPDATE_SUCCESS after update success" in {
@@ -182,7 +190,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
     it should "return UPDATE_FAILED after no data for update" in {
         val updateResult = MongoDb.updateData("not_exist_key", "any data")
 
-        updateResult.split(":") should contain ("UPDATE_FAILED")
+        updateResult.split(":") should contain("UPDATE_FAILED")
     }
 
     "listData" should "return all books list" in {
