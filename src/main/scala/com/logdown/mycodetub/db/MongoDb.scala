@@ -13,7 +13,7 @@ import scala.concurrent.{Await, Future}
 
 
 object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
+    private val mongoClient = MongoClient("mongodb://127.0.0.1:27017/")
 
     private val database = mongoClient.getDatabase("bookstore")
 
@@ -63,6 +63,12 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         val findFuture = collection.find(Filters.eq("isbn", isbn))
             .projection(fields(excludeId()))
 
-        Await.result(findFuture.head, Duration(10, TimeUnit.SECONDS)).toJson()
+        try {
+            Await.result(findFuture.head, Duration(10, TimeUnit.SECONDS)).toJson()
+        } catch {
+            case illEx: IllegalStateException =>
+                println("Error" + illEx.getMessage)
+                ""
+        }
     }
 }
