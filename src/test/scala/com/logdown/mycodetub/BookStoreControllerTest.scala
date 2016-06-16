@@ -131,7 +131,7 @@ class BookStoreControllerTest extends FeatureTest {
     }
 
     "DELETE" should {
-        "response Accepted and delete body when DELETE is success" in {
+        "response Accepted and Delete_Success when DELETE is success" in {
             val expectedIsbn = "9789869279000"
             val expectedBookData =
                 """
@@ -153,13 +153,8 @@ class BookStoreControllerTest extends FeatureTest {
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
-                withJsonBody = expectedBookData,
+                withBody = "Delete_Success",
                 andExpect = Status.Accepted
-            )
-
-            server.httpGet(
-                path = BookStoreApi.path_get(expectedIsbn),
-                andExpect = Status.NotFound
             )
         }
 
