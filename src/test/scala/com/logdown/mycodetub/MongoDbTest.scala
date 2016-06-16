@@ -136,7 +136,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
     )
 
 
-    "addData" should "add data into mongo db" in {
+    "addData" should "return INSERT_OK, after add data success" in {
         val expectedBookJsonString =
             """
               |{
@@ -148,11 +148,11 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
               |"price":560
               |}
             """.stripMargin
-        MongoDb.addData("", expectedBookJsonString)
+        val addResult = MongoDb.addData("", expectedBookJsonString)
+        addResult should be ("INSERT_OK")
 
         val expected = expectedBookJsonString.parseJson
         val actual = MongoDb.getDataByKey("9789863791621").parseJson
-
         expected should be(actual)
     }
 
