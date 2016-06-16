@@ -29,8 +29,7 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     post(BookStoreApi.path_create) {
         book: Book =>
             db.addData(book.isbn, gson.toJson(book))
-            response.created.location(s"/bookstore/${book.isbn}")
-            "add_success"
+            response.created.location(s"/bookstore/${book.isbn}").body("add_success")
     }
 
     get(BookStoreApi.path_get(":isbn")) {
