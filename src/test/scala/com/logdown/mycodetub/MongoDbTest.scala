@@ -187,6 +187,10 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
     }
 
+    it should "return empty list, if there is no book" in {
+        MongoDb.listData().size should be (0)
+    }
+
     "deleteData" should "return DELETE_SUCCESS after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
         MongoDb.addData("", booksData(0)) should be ("INSERT_OK")
