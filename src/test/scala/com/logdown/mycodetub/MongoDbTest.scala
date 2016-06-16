@@ -15,19 +15,20 @@ import scala.concurrent.duration.Duration
   */
 class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
-    val testCollection = MongoDbConnector.fetchCollection("test")
-    val mongoDb: Database[Book] = new MongoDb(testCollection)
+    val TestCollection = MongoDbConnector.fetchCollection("test")
+    val MongoDb: Database[Book] = new MongoDb(TestCollection)
     val EmptyString = ""
+    val gson: Gson = new Gson
 
     override protected def beforeEach(): Unit = {
         super.beforeEach()
-        val dropFuture = testCollection.drop().toFuture()
+        val dropFuture = TestCollection.drop().toFuture()
         Await.result(dropFuture, Duration(10, TimeUnit.SECONDS))
     }
 
     override protected def afterEach(): Unit = {
         super.beforeEach()
-        val dropFuture = testCollection.drop().toFuture()
+        val dropFuture = TestCollection.drop().toFuture()
         Await.result(dropFuture, Duration(10, TimeUnit.SECONDS))
     }
 
@@ -147,10 +148,10 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
               |"price":560
               |}
             """.stripMargin
-        mongoDb.addData("", expectedBookJsonString)
+        MongoDb.addData("", expectedBookJsonString)
 
         val expected = expectedBookJsonString.parseJson
-        val actual = mongoDb.getDataByKey("9789863791621").parseJson
+        val actual = MongoDb.getDataByKey("9789863791621").parseJson
 
         expected should be(actual)
     }
@@ -168,37 +169,35 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
                |"price":560
                |}
             """.stripMargin
-        mongoDb.addData(bookIsbn, bookJson)
-        mongoDb.getDataByKey(bookIsbn).parseJson should be(bookJson.parseJson)
+        MongoDb.addData(bookIsbn, bookJson)
+        MongoDb.getDataByKey(bookIsbn).parseJson should be(bookJson.parseJson)
 
         val expected = bookJson.replace("初版", "再版").replace("560", "888")
-        mongoDb.updateData(bookIsbn, expected)
-        mongoDb.getDataByKey(bookIsbn).parseJson should be(expected.parseJson)
+        MongoDb.updateData(bookIsbn, expected)
+        MongoDb.getDataByKey(bookIsbn).parseJson should be(expected.parseJson)
     }
 
     "listData" should "return all books list" in {
-        // add 10 books
-        val gson: Gson = new Gson
-        booksData.foreach(b => mongoDb.addData("", b))
+        info("add 10 books into mongo db")
+        booksData.foreach(b => MongoDb.addData("", b))
+
         val expectedBookList: List[Book] = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
 
-        val actualBookList: List[Book] = mongoDb.listData()
+        val actualBookList: List[Book] = MongoDb.listData()
 
         actualBookList.size should be(10)
         actualBookList.foreach((b: Book) => expectedBookList should contain(b))
     }
 
-    "deleteData" should "not return empty String if delete is success" in {
-        mongoDb.addData("", booksData(0))
+    "deleteData" should "return DELETE_SUCCESS after delete success" in {
+        info("add book(isbn=9789863476733) in MongoDB")
+        MongoDb.addData("", booksData(0)) should be ("INSERT_OK")
 
-        val deleteResult = mongoDb.deleteDataByKey("9789863476733")
-
-        deleteResult should not be EmptyString
+        info("delete book from MongoDB")
+        MongoDb.deleteDataByKey("9789863476733") should be("DELETE_SUCCESS")
     }
 
-    it should "return empty string, if delete is failed" in {
-        val deleteResult = mongoDb.deleteDataByKey("non_exist_key")
-
-        deleteResult should be (EmptyString)
+    it should "return DELETE_FAILED, after delete failed" in {
+        MongoDb.deleteDataByKey("non_exist_key") should be ("DELETE_FAILED")
     }
 }

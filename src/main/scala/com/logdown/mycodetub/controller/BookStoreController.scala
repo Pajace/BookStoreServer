@@ -55,9 +55,12 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     delete(BookStoreApi.path_delete(":isbn")) {
         request: Request =>
             val key = request.params("isbn")
-            val deletedJson = db.deleteDataByKey(key)
-            if (deletedJson == "") response.badRequest
-            else response.accepted.body(deletedJson)
+            db.deleteDataByKey(key) match {
+                case "DELETE_FAILED" => response.badRequest
+                case "DELETE_SUCCESS" => response.accepted
+            }
+//            if (deleteResult == "DELETE_FAILED") response.badRequest
+//            else response.accepted.body(deleteResult)
     }
 
 }

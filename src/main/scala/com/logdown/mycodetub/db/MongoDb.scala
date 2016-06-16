@@ -13,7 +13,7 @@ import scala.concurrent.{Await, Future}
 
 
 object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://127.0.0.1:27017/")
+    private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
 
     private val database = mongoClient.getDatabase("bookstore")
 
@@ -40,7 +40,7 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
     override def deleteDataByKey(isbn: String): String = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
-        if (deleteResult.head.getDeletedCount == 1) "Delete_Success" else ""
+        if (deleteResult.head.getDeletedCount == 1) "DELETE_SUCCESS" else "DELETE_FAILED"
     }
 
     override def updateData(isbn: String, value: String): String = {

@@ -153,7 +153,6 @@ class BookStoreControllerTest extends FeatureTest {
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
-                withBody = "Delete_Success",
                 andExpect = Status.Accepted
             )
         }
