@@ -36,7 +36,6 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, Book] =
         }
     }
 
-
     override def getBooksByIsbn(key: String): Option[Book] = localMemoryDb.get(key)
 
     override def listAllBooks(): List[Book] = localMemoryDb.values.toList
