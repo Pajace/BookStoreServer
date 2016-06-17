@@ -10,7 +10,7 @@ case class Book(@NotEmpty isbn: String,
                 author: String,
                 publishing: String,
                 version: String,
-                price: Double){
+                price: Double) {
 
 }
 

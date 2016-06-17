@@ -4,17 +4,17 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.BookStoreServerMain
+import com.logdown.mycodetub.db.Database._
+import com.twitter.inject.Logging
+import org.bson.BsonInvalidOperationException
 import org.bson.json.JsonParseException
-import org.mongodb.scala.{MongoClient, _}
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
 import org.mongodb.scala.model.Projections._
+import org.mongodb.scala.{MongoClient, _}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
-import com.twitter.inject.Logging
-import org.bson.BsonInvalidOperationException
-import com.logdown.mycodetub.db.Database._
 
 object MongoDbConnector {
     private val mongoClient = MongoClient("mongodb://" + BookStoreServerMain.DefaultMongoDBUrl)
@@ -68,7 +68,6 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
 
     override def listAllBooks(): List[Book] = {
         val findAll: Future[Seq[Document]] = collection.find().projection(excludeId()).toFuture()
-        val gson: Gson = new Gson
         val allData = Await.result(findAll, Duration(20, TimeUnit.SECONDS)).map(f => gson.fromJson(f.toJson(), classOf[Book]))
         allData.toList
     }
