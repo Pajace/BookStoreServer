@@ -16,7 +16,7 @@ import org.bson.BsonInvalidOperationException
 import com.logdown.mycodetub.db.Database._
 
 object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
+    private val mongoClient = MongoClient("mongodb://127.0.0.1:27017/")
 
     private val database = mongoClient.getDatabase("bookstore")
 
