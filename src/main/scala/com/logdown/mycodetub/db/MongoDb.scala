@@ -13,6 +13,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException
+import com.logdown.mycodetub.db.Database._
 
 object MongoDbConnector {
     private val mongoClient = MongoClient("mongodb://10.8.33.30:27017/")
@@ -27,36 +28,40 @@ object MongoDbConnector {
   */
 class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with Database[Book] {
 
-    override def addBooks(isbn: String, bookJsonString: String): String = {
-        //        try {
+    val gson: Gson = new Gson
+
+    override def addBooks(book: Book): String = {
+
+        val bookJsonString = gson.toJson(book)
         val bookDocument = createDocumentByJsonString(bookJsonString).orNull
-        if (bookDocument == null) return "INSERT_FAILED"
+        if (bookDocument == null) return Result_Failed.toString
 
         val insertFuture = collection.insertOne(bookDocument).toFuture()
 
         val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
         if (addResult.contains("successfully"))
-            "INSERT_OK"
+            Database.Result_Success.toString
         else
-            "INSERT_FAILED"
+            Database.Result_Failed.toString
     }
 
     override def deleteBooksByIsbn(isbn: String): String = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
-        if (deleteResult.head.getDeletedCount == 1) "DELETE_SUCCESS" else "DELETE_FAILED"
+        if (deleteResult.head.getDeletedCount == 1) Result_Success.toString else Result_Failed.toString
     }
 
-    override def updateBooksInfo(isbn: String, value: String): String = {
+    override def updateBooksInfo(book: Book): String = {
+        val value = gson.toJson(book)
         val document: Document = createDocumentByJsonString(value).orNull
-        if (document == null) return "UPDATE_FAILED: json parse failed."
+        if (document == null) return Result_Failed.toString + ": json parse failed."
 
-        val update = collection.replaceOne(Filters.eq("isbn", isbn), document)
+        val update = collection.replaceOne(Filters.eq("isbn", book.isbn), document)
 
         val updateResult = Await.result(update.head(), Duration(10, TimeUnit.SECONDS))
         (updateResult.getMatchedCount, updateResult.getModifiedCount) match {
-            case (1, 1) => "UPDATE_SUCCESS"
-            case _ => "UPDATE_FAILED"
+            case (1, 1) => Result_Success.toString
+            case _ => Result_Failed.toString
         }
     }
 
@@ -67,17 +72,16 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         allData.toList
     }
 
-    override def getBooksByIsbn(isbn: String): String = {
-
+    override def getBooksByIsbn(isbn: String): Option[Book] = {
         val findFuture = collection.find(Filters.eq("isbn", isbn))
             .projection(fields(excludeId()))
 
         try {
-            Await.result(findFuture.head, Duration(10, TimeUnit.SECONDS)).toJson()
+            Option(gson.fromJson(Await.result(findFuture.head, Duration(10, TimeUnit.SECONDS)).toJson(), classOf[Book]))
         } catch {
             case illEx: IllegalStateException =>
                 println("Error" + illEx.getMessage)
-                ""
+                None
         }
     }
 
@@ -93,4 +97,5 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
                 None
         }
     }
+
 }

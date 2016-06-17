@@ -1,25 +1,37 @@
 package com.logdown.mycodetub
 
+import com.google.gson.Gson
 import com.google.inject.Stage
+import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
-import com.logdown.mycodetub.db.Book
+import com.logdown.mycodetub.db.Database._
+import com.logdown.mycodetub.db.{Book, Database, MongoDb}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
+import org.scalamock.scalatest._
 
 /**
   * Created by pajace_chen on 2016/6/6.
   */
-class BookStoreControllerTest extends FeatureTest {
+class BookStoreControllerTest extends FeatureTest with MockFactory {
 
     override val server = new EmbeddedHttpServer(
         twitterServer = new BookStoreServer,
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
+    val gson: Gson = new Gson()
 
-    "POST" should {
+    @Bind
+    @MongoDb
+    val stubMongoDB = stub[Database[Book]]
+
+    "POST /bookstore/add" should {
         "response created and GET location when request for add is made" in {
+
+            (stubMongoDB.addBooks _).when(*).returns(Database.Result_Success.toString)
+
             val expectedIsbn = "9787512387744"
             server.httpPost(
                 path = BookStoreApi.path_create,
@@ -35,67 +47,101 @@ class BookStoreControllerTest extends FeatureTest {
                        |}
                     """.stripMargin,
                 andExpect = Status.Created,
-                withLocation = BookStoreApi.path_get(expectedIsbn)
+                withLocation = BookStoreApi.path_get(expectedIsbn),
+                withBody = Database.Result_Success.toString
             )
         }
     }
 
-    "GET" should {
-        s"list book's information when GET ${BookStoreApi.path_get("isbn")} request is made" in {
-            val expectedIsbn = "9789869279987"
-            val expectedBookJsonData =
-                s"""
-                   |{
-                   |"isbn":"${expectedIsbn}",
-                   |"name":"Growth Hack",
-                   |"author":"Xdite",
-                   |"publishing":"PCuSER電腦人文化",
-                   |"version":"初版",
-                   |"price":360.0
-                   |}
-                """.stripMargin
-
-            val response = server.httpPost(
-                path = BookStoreApi.path_create,
-                postBody = expectedBookJsonData,
-                andExpect = Status.Created,
-                withLocation = BookStoreApi.path_get(expectedIsbn)
+    "GET /bookstore/:isbn" should {
+        s"return book's json string when GET ${BookStoreApi.path_get("isbn")} request is made" in {
+            val book: Book = new Book(
+                isbn = "9789863475385",
+                name = "JavaScript應用程式開發實務",
+                author = "艾里亞特 ; 楊仁和",
+                publishing = "碁峰資訊",
+                version = "初版",
+                price = 480
             )
+
+            (stubMongoDB.getBooksByIsbn _).when(book.isbn).returns(Option(book))
+            val bookJson = gson.toJson(book, classOf[Book])
 
             // get data and assert
             server.httpGetJson[Book](
-                path = response.location.get,
-                withJsonBody = expectedBookJsonData
+                path = BookStoreApi.path_get(book.isbn),
+                withJsonBody = bookJson
             )
         }
 
-        "response NotFound, if book's isbn of request is not exist " in {
+        "response NotFound, if book's isbn of request is not exist" in {
             val notFoundIsbn = "1234567890123"
+            (stubMongoDB.getBooksByIsbn _).when(notFoundIsbn).returns(None)
+
             server.httpGet(
                 path = BookStoreApi.path_get(notFoundIsbn),
                 andExpect = Status.NotFound)
         }
     }
 
-    "PUT" should {
+    "GET /bookstore/list" should {
+        "return json string of book's list" in {
+            val book1 =
+                """
+                  |{
+                  |"isbn":"1111111111111",
+                  |"name":"Programmin in Scala",
+                  |"author":"Martin, Odersky, Lex Spoon, and Bill Venners",
+                  |"publishing":"Artima",
+                  |"version":"2nd ed.",
+                  |"price":34.90
+                  |}
+                """.stripMargin
+            val book2 =
+                """
+                  |{
+                  |"isbn":"2222222222222",
+                  |"name":"SCALA for the Impatient",
+                  |"author":"Cay S. Horstmann",
+                  |"publishing":"Addison-Wesley",
+                  |"version":"1st ed.",
+                  |"price":49.99
+                  |}
+                """.stripMargin
+            val book3 =
+                """
+                  |{
+                  |"isbn":"3333333333333",
+                  |"name":"Functional Programmin in Scala",
+                  |"author":"Paul Chiusano, Runar Bjarnason",
+                  |"publishing":"Manning Publications",
+                  |"version":"1 ed.",
+                  |"price":44.99
+                  |}
+                """.stripMargin
+
+            val gson = new Gson
+            val expectedResult = List[Book](
+                gson.fromJson(book1, classOf[Book]),
+                gson.fromJson(book2, classOf[Book]),
+                gson.fromJson(book3, classOf[Book]))
+
+            (stubMongoDB.listAllBooks _).when().returns(expectedResult)
+
+            server.httpGetJson[List[Book]](
+                path = BookStoreApi.path_list,
+                andExpect = Status.Ok,
+                withJsonBody = s"[${book1}, ${book2}, ${book3}]"
+            )
+        }
+    }
+
+    "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
-            // create data
-            server.httpPost(
-                path = BookStoreApi.path_create,
-                postBody =
-                    """
-                      |{
-                      |"isbn":"9789869279000",
-                      |"name":"Growth Hack",
-                      |"author":"Xdite",
-                      |"publishing":"PCuSER電腦人文化",
-                      |"version":"初版",
-                      |"price":360.0
-                      |}
-                    """.stripMargin)
+            (stubMongoDB.updateBooksInfo _).when(*).returns(Database.Result_Success.toString)
 
             // update data
-            val response = server.httpPut(
+            server.httpPut(
                 path = BookStoreApi.path_update,
                 putBody =
                     """
@@ -111,11 +157,15 @@ class BookStoreControllerTest extends FeatureTest {
                 andExpect = Status.Accepted,
                 withLocation = "/bookstore/9789869279000"
             )
+        }
 
-            // assert
-            server.httpGetJson[Book](
-                path = response.location.get,
-                withJsonBody =
+        "response NotFound, if there is not exist book for update" in {
+            (stubMongoDB.updateBooksInfo _).when(*).returns(Database.Result_Failed.toString)
+
+            // update data
+            server.httpPut(
+                path = BookStoreApi.path_update,
+                putBody =
                     """
                       |{
                       |"isbn":"9789869279000",
@@ -125,31 +175,18 @@ class BookStoreControllerTest extends FeatureTest {
                       |"version":"初版",
                       |"price":880.0
                       |}
-                    """.stripMargin
+                    """.stripMargin,
+                andExpect = Status.NotFound,
+                withBody = "9789869279000 not found"
             )
         }
     }
 
-    "DELETE" should {
+    "DELETE /bookstore/delete/:isbn" should {
         "response Accepted and Delete_Success when DELETE is success" in {
-            val expectedIsbn = "9789869279000"
-            val expectedBookData =
-                """
-                  |{
-                  |"isbn":"9789869279000",
-                  |"name":"Growth Hack",
-                  |"author":"Xdite",
-                  |"publishing":"PCuSER電腦人文化",
-                  |"version":"初版",
-                  |"price":360.0
-                  |}
-                """.stripMargin
+            val expectedIsbn = "1234567890000"
 
-            server.httpPost(
-                path = BookStoreApi.path_create,
-                postBody = expectedBookData,
-                andExpect = Status.Created,
-                withLocation = BookStoreApi.path_get(expectedIsbn))
+            (stubMongoDB.deleteBooksByIsbn _).when(expectedIsbn).returns(Result_Success.toString)
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
@@ -157,11 +194,13 @@ class BookStoreControllerTest extends FeatureTest {
             )
         }
 
-        "response \"BadRequest\", when delete key isn't exist" in {
+        "response \"NotFound\", when delete key isn't exist" in {
             val notExistKey = "1111111111111"
+            (stubMongoDB.deleteBooksByIsbn _).when(notExistKey).returns(Result_Failed.toString)
+
             server.httpDelete(
                 path = BookStoreApi.path_delete(notExistKey),
-                andExpect = Status.BadRequest
+                andExpect = Status.NotFound
             )
         }
     }
