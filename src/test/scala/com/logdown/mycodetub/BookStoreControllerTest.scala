@@ -2,7 +2,7 @@ package com.logdown.mycodetub
 
 import com.google.inject.Stage
 import com.logdown.mycodetub.controller.BookStoreApi
-import com.logdown.mycodetub.db.Book
+import com.logdown.mycodetub.db.{Book, Database}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
@@ -35,7 +35,8 @@ class BookStoreControllerTest extends FeatureTest {
                        |}
                     """.stripMargin,
                 andExpect = Status.Created,
-                withLocation = BookStoreApi.path_get(expectedIsbn)
+                withLocation = BookStoreApi.path_get(expectedIsbn),
+                withBody = Database.Result_Success.toString
             )
         }
     }
