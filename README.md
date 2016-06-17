@@ -14,7 +14,7 @@ This book store server provide following api
 *Note*: some integration test case need MongoDB's support
 
 ## Example for bookstore API
-You can you Chrom's plugin - PostMan to do POST/GET/PUT/DELETE or use the following command to test it.
+You can use Chrome's plugin - *PostMan* to do POST/GET/PUT/DELETE or use the following command to test it.
 
 - add book into book server
 ```
