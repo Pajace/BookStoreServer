@@ -21,7 +21,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
-    val gson : Gson = new Gson()
+    val gson: Gson = new Gson()
 
     @Bind
     @MongoDb
@@ -136,25 +136,12 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
     }
 
-    "PUT" should {
+    "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
-            // create data
-            server.httpPost(
-                path = BookStoreApi.path_create,
-                postBody =
-                    """
-                      |{
-                      |"isbn":"9789869279000",
-                      |"name":"Growth Hack",
-                      |"author":"Xdite",
-                      |"publishing":"PCuSER電腦人文化",
-                      |"version":"初版",
-                      |"price":360.0
-                      |}
-                    """.stripMargin)
+            (mockMongoDb.updateBooksInfo _).when(*).returns(Database.Result_Success.toString)
 
             // update data
-            val response = server.httpPut(
+            server.httpPut(
                 path = BookStoreApi.path_update,
                 putBody =
                     """
@@ -170,11 +157,15 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 andExpect = Status.Accepted,
                 withLocation = "/bookstore/9789869279000"
             )
+        }
 
-            // assert
-            server.httpGetJson[Book](
-                path = response.location.get,
-                withJsonBody =
+        "response NotFound, if there is not exist book for update" in {
+            (mockMongoDb.updateBooksInfo _).when(*).returns(Database.Result_Failed.toString)
+
+            // update data
+            server.httpPut(
+                path = BookStoreApi.path_update,
+                putBody =
                     """
                       |{
                       |"isbn":"9789869279000",
@@ -184,7 +175,9 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                       |"version":"初版",
                       |"price":880.0
                       |}
-                    """.stripMargin
+                    """.stripMargin,
+                andExpect = Status.NotFound,
+                withBody = "9789869279000 not found"
             )
         }
     }

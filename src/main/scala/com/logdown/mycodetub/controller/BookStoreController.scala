@@ -5,6 +5,7 @@ import com.google.inject.{Inject, Singleton}
 import com.logdown.mycodetub.db.{Book, Database}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
+import com.logdown.mycodetub.db.Database._
 
 /**
   * Created by pajace_chen on 2016/6/6.
@@ -43,13 +44,17 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
             response.ok
             db.listAllBooks()
     }
-    //
-    //    put(BookStoreApi.path_update) {
-    //        book: Book =>
-    //            val bookJsonString = gson.toJson(book)
-    //            db.updateBooksInfo(book.isbn, bookJsonString)
-    //            response.accepted.location(s"/bookstore/${book.isbn}")
-    //    }
+
+    put(BookStoreApi.path_update) {
+        val updateSuccess = Result_Success.toString
+
+        book: Book =>
+            db.updateBooksInfo(book) match {
+                case `updateSuccess` => response.accepted.location(s"/bookstore/${book.isbn}")
+                case _ => response.notFound.body(book.isbn +" not found")
+            }
+
+    }
     //
     //    delete(BookStoreApi.path_delete(":isbn")) {
     //        request: Request =>
