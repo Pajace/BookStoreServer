@@ -84,6 +84,58 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
     }
 
+    "GET /bookstore/list" should {
+        "return json string of book's list" in {
+            val book1 =
+                """
+                  |{
+                  |"isbn":"1111111111111",
+                  |"name":"Programmin in Scala",
+                  |"author":"Martin, Odersky, Lex Spoon, and Bill Venners",
+                  |"publishing":"Artima",
+                  |"version":"2nd ed.",
+                  |"price":34.90
+                  |}
+                """.stripMargin
+            val book2 =
+                """
+                  |{
+                  |"isbn":"2222222222222",
+                  |"name":"SCALA for the Impatient",
+                  |"author":"Cay S. Horstmann",
+                  |"publishing":"Addison-Wesley",
+                  |"version":"1st ed.",
+                  |"price":49.99
+                  |}
+                """.stripMargin
+            val book3 =
+                """
+                  |{
+                  |"isbn":"3333333333333",
+                  |"name":"Functional Programmin in Scala",
+                  |"author":"Paul Chiusano, Runar Bjarnason",
+                  |"publishing":"Manning Publications",
+                  |"version":"1 ed.",
+                  |"price":44.99
+                  |}
+                """.stripMargin
+
+            val gson = new Gson
+            val expectedResult = List[Book](
+                gson.fromJson(book1, classOf[Book]),
+                gson.fromJson(book2, classOf[Book]),
+                gson.fromJson(book3, classOf[Book]))
+
+            (mockMongoDb.listAllBooks _).when().returns(expectedResult)
+
+            server.httpGetJson[List[Book]](
+                path = BookStoreApi.path_list,
+                andExpect = Status.Ok,
+                withJsonBody = s"[${book1}, ${book2}, ${book3}]"
+            )
+        }
+    }
+
     "PUT" should {
         "response Accepted and GET path after book's information is updated" in {
             // create data
