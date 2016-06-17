@@ -148,20 +148,20 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
               |"price":560
               |}
             """.stripMargin
-        val addResult = MongoDb.addData("", expectedBookJsonString)
+        val addResult = MongoDb.addBooks("", expectedBookJsonString)
         addResult should be("INSERT_OK")
 
         val expected = expectedBookJsonString.parseJson
-        val actual = MongoDb.getDataByKey("9789863791621").parseJson
+        val actual = MongoDb.getBooksByIsbn("9789863791621").parseJson
         expected should be(actual)
     }
 
     it should "return INSERT_FAILED, if input json string is not valid" in {
-        MongoDb.addData("", "a") should be("INSERT_FAILED")
+        MongoDb.addBooks("", "a") should be("INSERT_FAILED")
     }
 
     it should "return INSERT_FAILED, if input json string is empty string" in {
-        MongoDb.addData("", "") should be("INSERT_FAILED")
+        MongoDb.addBooks("", "") should be("INSERT_FAILED")
     }
 
     "updateData" should "return UPDATE_SUCCESS after update success" in {
@@ -177,18 +177,18 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
                |"price":560
                |}
             """.stripMargin
-        MongoDb.addData(bookIsbn, bookJson)
-        MongoDb.getDataByKey(bookIsbn).parseJson should be(bookJson.parseJson)
+        MongoDb.addBooks(bookIsbn, bookJson)
+        MongoDb.getBooksByIsbn(bookIsbn).parseJson should be(bookJson.parseJson)
 
         val expected = bookJson.replace("初版", "再版").replace("560", "888")
-        val updateResult = MongoDb.updateData(bookIsbn, expected)
-        MongoDb.getDataByKey(bookIsbn).parseJson should be(expected.parseJson)
+        val updateResult = MongoDb.updateBooksInfo(bookIsbn, expected)
+        MongoDb.getBooksByIsbn(bookIsbn).parseJson should be(expected.parseJson)
 
         updateResult should be("UPDATE_SUCCESS")
     }
 
     it should "return UPDATE_FAILED after no data for update" in {
-        val updateResult = MongoDb.updateData("not_exist_key", "any data")
+        val updateResult = MongoDb.updateBooksInfo("not_exist_key", "any data")
 
         updateResult.split(":") should contain("UPDATE_FAILED")
     }
@@ -197,30 +197,30 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         info("add 10 books into mongo db")
         val expectedBookList: List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
 
-        val booksListFromDB: List[Book] = MongoDb.listData()
+        val booksListFromDB: List[Book] = MongoDb.listAllBooks()
 
         booksListFromDB.size should be(10)
         booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
     }
 
     it should "return empty list, if there is no book" in {
-        MongoDb.listData().size should be(0)
+        MongoDb.listAllBooks().size should be(0)
     }
 
     "deleteData" should "return DELETE_SUCCESS after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
-        MongoDb.addData("", booksData(0)) should be("INSERT_OK")
+        MongoDb.addBooks("", booksData(0)) should be("INSERT_OK")
 
         info("delete book from MongoDB")
-        MongoDb.deleteDataByKey("9789863476733") should be("DELETE_SUCCESS")
+        MongoDb.deleteBooksByIsbn("9789863476733") should be("DELETE_SUCCESS")
     }
 
     it should "return DELETE_FAILED, after delete failed" in {
-        MongoDb.deleteDataByKey("non_exist_key") should be("DELETE_FAILED")
+        MongoDb.deleteBooksByIsbn("non_exist_key") should be("DELETE_FAILED")
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
-        booksData.foreach(MongoDb.addData("", _))
+        booksData.foreach(MongoDb.addBooks("", _))
         booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
     }
 }

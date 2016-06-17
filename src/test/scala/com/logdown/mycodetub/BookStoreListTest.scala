@@ -67,7 +67,7 @@ class BookStoreListTest extends FeatureTest with Mockito {
                 gson.fromJson(book2, classOf[Book]),
                 gson.fromJson(book3, classOf[Book]))
 
-            memoryDatabase.listData().returns(expectedResult)
+            memoryDatabase.listAllBooks().returns(expectedResult)
 
             server.httpGetJson[List[Book]](
                 path = BookStoreApi.path_list,

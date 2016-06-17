@@ -28,13 +28,13 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
 
     post(BookStoreApi.path_create) {
         book: Book =>
-            db.addData(book.isbn, gson.toJson(book))
+            db.addBooks(book.isbn, gson.toJson(book))
             response.created.location(s"/bookstore/${book.isbn}").body("add_success")
     }
 
     get(BookStoreApi.path_get(":isbn")) {
         request: Request =>
-            val bookJsonString = db.getDataByKey(request.params("isbn"))
+            val bookJsonString = db.getBooksByIsbn(request.params("isbn"))
             if (bookJsonString == "") response.notFound
             else gson.fromJson[Book](bookJsonString, classOf[Book])
     }
@@ -42,20 +42,20 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     get(BookStoreApi.path_list) {
         request: Request =>
             response.ok
-            db.listData()
+            db.listAllBooks()
     }
 
     put(BookStoreApi.path_update) {
         book: Book =>
             val bookJsonString = gson.toJson(book)
-            db.updateData(book.isbn, bookJsonString)
+            db.updateBooksInfo(book.isbn, bookJsonString)
             response.accepted.location(s"/bookstore/${book.isbn}")
     }
 
     delete(BookStoreApi.path_delete(":isbn")) {
         request: Request =>
             val key = request.params("isbn")
-            db.deleteDataByKey(key) match {
+            db.deleteBooksByIsbn(key) match {
                 case "DELETE_FAILED" => response.badRequest
                 case "DELETE_SUCCESS" => response.accepted
             }

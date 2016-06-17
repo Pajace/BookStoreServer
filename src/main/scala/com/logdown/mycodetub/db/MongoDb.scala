@@ -27,7 +27,7 @@ object MongoDbConnector {
   */
 class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with Database[Book] {
 
-    override def addData(isbn: String, bookJsonString: String): String = {
+    override def addBooks(isbn: String, bookJsonString: String): String = {
         //        try {
         val bookDocument = createDocumentByJsonString(bookJsonString).orNull
         if (bookDocument == null) return "INSERT_FAILED"
@@ -41,13 +41,13 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
             "INSERT_FAILED"
     }
 
-    override def deleteDataByKey(isbn: String): String = {
+    override def deleteBooksByIsbn(isbn: String): String = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
         if (deleteResult.head.getDeletedCount == 1) "DELETE_SUCCESS" else "DELETE_FAILED"
     }
 
-    override def updateData(isbn: String, value: String): String = {
+    override def updateBooksInfo(isbn: String, value: String): String = {
         val document: Document = createDocumentByJsonString(value).orNull
         if (document == null) return "UPDATE_FAILED: json parse failed."
 
@@ -60,14 +60,14 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         }
     }
 
-    override def listData(): List[Book] = {
+    override def listAllBooks(): List[Book] = {
         val findAll: Future[Seq[Document]] = collection.find().projection(excludeId()).toFuture()
         val gson: Gson = new Gson
         val allData = Await.result(findAll, Duration(20, TimeUnit.SECONDS)).map(f => gson.fromJson(f.toJson(), classOf[Book]))
         allData.toList
     }
 
-    override def getDataByKey(isbn: String): String = {
+    override def getBooksByIsbn(isbn: String): String = {
 
         val findFuture = collection.find(Filters.eq("isbn", isbn))
             .projection(fields(excludeId()))

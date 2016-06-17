@@ -10,19 +10,19 @@ import scala.collection.mutable
 class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
                      mutable.Map[String, String]()) extends Database[Book] {
 
-    override def addData(key: String, value: String): String = {
+    override def addBooks(key: String, value: String): String = {
         localMemoryDb.put(key, value)
         localMemoryDb.getOrElse(key, "")
     }
 
-    override def deleteDataByKey(key: String): String = {
+    override def deleteBooksByIsbn(key: String): String = {
         localMemoryDb.remove(key) match {
             case Some(deletedData) => deletedData
             case None => ""
         }
     }
 
-    override def updateData(key: String, value: String): String = {
+    override def updateBooksInfo(key: String, value: String): String = {
         val updateResult = localMemoryDb.put(key, value) match {
             case None => ""
             case _ => localMemoryDb.getOrElse(key, "")
@@ -30,9 +30,9 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, String] =
         updateResult
     }
 
-    override def getDataByKey(key: String): String = localMemoryDb.getOrElse(key, "")
+    override def getBooksByIsbn(key: String): String = localMemoryDb.getOrElse(key, "")
 
-    override def listData(): List[Book] = {
+    override def listAllBooks(): List[Book] = {
         val gson = new Gson
         val books = for (key <- localMemoryDb.keys) yield
             gson.fromJson[Book](localMemoryDb.get(key).get, classOf[Book])

@@ -344,7 +344,7 @@ object QuickTour {
     def addTestData(index: Int): Book = {
         val db = new MongoDb
         println("XX" * 100)
-        println(db.addData("", booksData(index)))
+        println(db.addBooks("", booksData(index)))
         println("XX" * 100)
         val gson = new Gson
         gson.fromJson(booksData(index), classOf[Book])

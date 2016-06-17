@@ -25,7 +25,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         val expectedKey = "0001"
 
         val db = new MemoryDatabase
-        val addedResult = db.addData(expectedKey, expectedData);
+        val addedResult = db.addBooks(expectedKey, expectedData);
 
         addedResult should be(expectedData)
     }
@@ -38,7 +38,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         fakeDb.put(expectedKey, expectedData)
 
         val db = new MemoryDatabase(fakeDb)
-        val actualResult = db.deleteDataByKey(expectedKey)
+        val actualResult = db.deleteBooksByIsbn(expectedKey)
 
         actualResult should not be EmptyString
     }
@@ -51,16 +51,16 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         fakeDb.put(expectedKey, expectedData)
 
         val db = new MemoryDatabase(fakeDb)
-        db.deleteDataByKey(expectedKey)
+        db.deleteBooksByIsbn(expectedKey)
 
-        db.getDataByKey(expectedKey) should be (EmptyString)
+        db.getBooksByIsbn(expectedKey) should be (EmptyString)
     }
 
     it should "return empty String, if delete data is failed" in {
         val db = new MemoryDatabase()
         val keyOfNoData = "whatEver"
 
-        val actualResult = db.getDataByKey(keyOfNoData)
+        val actualResult = db.getBooksByIsbn(keyOfNoData)
 
         actualResult should be(EmptyString)
     }
@@ -89,7 +89,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         fakeDb.put(expectedKey, origionaldata)
 
         val db = new MemoryDatabase(fakeDb)
-        val actualUpdatedData = db.updateData(expectedKey, updatedData)
+        val actualUpdatedData = db.updateBooksInfo(expectedKey, updatedData)
 
         actualUpdatedData should be(updatedData)
     }
@@ -106,7 +106,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
             """.stripMargin
 
         val db = new MemoryDatabase()
-        val actualUpdatedData = db.updateData(expectedKey, origionaldata)
+        val actualUpdatedData = db.updateBooksInfo(expectedKey, origionaldata)
 
         actualUpdatedData should be(EmptyString)
     }
@@ -126,7 +126,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         fakeDb.put(expectedKey, expectedData)
 
         val db = new MemoryDatabase(fakeDb)
-        val actualResult = db.getDataByKey(expectedKey)
+        val actualResult = db.getBooksByIsbn(expectedKey)
 
         actualResult should be(expectedData)
     }
@@ -134,7 +134,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
     it should "return empty string if get data failed" in {
         val db: Database[Book] = new MemoryDatabase()
 
-        val actualResult = db.getDataByKey("what ever")
+        val actualResult = db.getBooksByIsbn("what ever")
 
         actualResult should be(EmptyString)
     }
@@ -156,7 +156,7 @@ class MemoryDatabaseTest extends FlatSpec with Matchers {
         val expectedBookList: List[Book] = List[Book](book1, book2, book3)
 
         val db: Database[Book] = new MemoryDatabase(fakeDb)
-        val actualBookList = db.listData()
+        val actualBookList = db.listAllBooks()
 
         for (book <- expectedBookList) {
             actualBookList should contain(book)
