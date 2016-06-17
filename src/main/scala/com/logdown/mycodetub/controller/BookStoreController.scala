@@ -37,12 +37,12 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
                 case None => response.notFound
             }
     }
-    //
-    //    get(BookStoreApi.path_list) {
-    //        request: Request =>
-    //            response.ok
-    //            db.listAllBooks()
-    //    }
+
+    get(BookStoreApi.path_list) {
+        request: Request =>
+            response.ok
+            db.listAllBooks()
+    }
     //
     //    put(BookStoreApi.path_update) {
     //        book: Book =>

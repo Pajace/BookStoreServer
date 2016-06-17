@@ -27,7 +27,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     @MongoDb
     val mockMongoDb = stub[Database[Book]]
 
-    "POST" should {
+    "POST /bookstore/add" should {
         "response created and GET location when request for add is made" in {
 
             (mockMongoDb.addBooks _).when(*).returns(Database.Result_Success.toString)
@@ -53,7 +53,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
     }
 
-    "GET" should {
+    "GET /bookstore/:isbn" should {
         s"return book's json string when GET ${BookStoreApi.path_get("isbn")} request is made" in {
             val book: Book = new Book(
                 isbn = "9789863475385",
