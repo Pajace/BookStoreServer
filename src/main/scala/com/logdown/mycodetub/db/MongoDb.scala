@@ -3,6 +3,7 @@ package com.logdown.mycodetub.db
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
+import com.logdown.mycodetub.BookStoreServerMain
 import org.bson.json.JsonParseException
 import org.mongodb.scala.{MongoClient, _}
 import org.mongodb.scala.bson.collection.immutable.Document
@@ -16,7 +17,7 @@ import org.bson.BsonInvalidOperationException
 import com.logdown.mycodetub.db.Database._
 
 object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://127.0.0.1:27017/")
+    private val mongoClient = MongoClient("mongodb://" + BookStoreServerMain.DefaultMongoDBUrl)
 
     private val database = mongoClient.getDatabase("bookstore")
 
