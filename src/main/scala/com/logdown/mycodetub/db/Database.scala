@@ -5,16 +5,23 @@ package com.logdown.mycodetub.db
   */
 /**
   * Database
+  *
   * @tparam T value type
   */
 trait Database[T] {
-    def addBooks(isbn: String, value: String): String
+
+    def addBooks(value: T): String
 
     def deleteBooksByIsbn(isbn: String): String
 
-    def updateBooksInfo(isbn: String, value: String): String
+    def updateBooksInfo(books: T): String
 
-    def getBooksByIsbn(isbn: String): String
+    def getBooksByIsbn(isbn: String): Option[T]
 
     def listAllBooks(): List[T]
+}
+
+object Database extends Enumeration {
+    val Result_Success = Value("RESULT_SUCCESS")
+    val Result_Failed = Value("RESULT_FAILED")
 }

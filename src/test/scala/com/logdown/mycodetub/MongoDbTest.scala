@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.db.{Book, Database, MongoDb, MongoDbConnector}
+import com.logdown.mycodetub.db.Database._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 import spray.json._
 
@@ -136,61 +137,63 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
     )
 
 
-    "addData" should "return INSERT_OK, after add data success" in {
-        val expectedBookJsonString =
-            """
-              |{
-              |"isbn":"9789863791621",
-              |"name":"奠定大數據的基石 : NoSQL資料庫技術",
-              |"author":"皮雄軍",
-              |"publishing":"佳魁資訊",
-              |"version":"初版",
-              |"price":560
-              |}
-            """.stripMargin
-        val addResult = MongoDb.addBooks("", expectedBookJsonString)
-        addResult should be("INSERT_OK")
+    "addData" should "return Result_Success, after add data success" in {
+        val expectedBook: Book = new Book(
+            isbn = "9789863791621",
+            name = "奠定大數據的基石 : NoSQL資料庫技術",
+            author = "皮雄軍",
+            publishing = "佳魁資訊",
+            version = "初版",
+            price = 560.0)
 
-        val expected = expectedBookJsonString.parseJson
-        val actual = MongoDb.getBooksByIsbn("9789863791621").parseJson
-        expected should be(actual)
+        val addResult = MongoDb.addBooks(expectedBook)
+        addResult should be(Result_Success.toString)
+
+        val actual = MongoDb.getBooksByIsbn(expectedBook.isbn).get
+        actual should be(expectedBook)
     }
 
-    it should "return INSERT_FAILED, if input json string is not valid" in {
-        MongoDb.addBooks("", "a") should be("INSERT_FAILED")
+    it should "return RESULT_FAILED, if input book is null" in {
+        MongoDb.addBooks(null) should be(Result_Failed.toString)
     }
 
-    it should "return INSERT_FAILED, if input json string is empty string" in {
-        MongoDb.addBooks("", "") should be("INSERT_FAILED")
+
+    "updateData" should "return RESULT_SUCCESS after update success" in {
+        val book: Book = new Book(
+            isbn = "9789863791621",
+            name = "奠定大數據的基石 : NoSQL資料庫技術",
+            author = "皮雄軍",
+            publishing = "佳魁資訊",
+            version = "初版",
+            price = 560)
+
+        val updatedBook: Book = new Book(
+            isbn = "9789863791621",
+            name = "奠定大數據的基石 : NoSQL資料庫技術",
+            author = "皮雄軍",
+            publishing = "佳魁資訊",
+            version = "再版",
+            price = 980)
+
+        MongoDb.addBooks(book)
+        MongoDb.getBooksByIsbn(book.isbn).get should be(book)
+
+        val updateResult = MongoDb.updateBooksInfo(updatedBook)
+        MongoDb.getBooksByIsbn(book.isbn).get should be(updatedBook)
+
+        updateResult should be(Result_Success.toString)
     }
 
-    "updateData" should "return UPDATE_SUCCESS after update success" in {
-        val bookIsbn = "9789863791621"
-        val bookJson =
-            s"""
-               |{
-               |"isbn":"${bookIsbn}",
-               |"name":"奠定大數據的基石 : NoSQL資料庫技術",
-               |"author":"皮雄軍",
-               |"publishing":"佳魁資訊",
-               |"version":"初版",
-               |"price":560
-               |}
-            """.stripMargin
-        MongoDb.addBooks(bookIsbn, bookJson)
-        MongoDb.getBooksByIsbn(bookIsbn).parseJson should be(bookJson.parseJson)
+    it should "return RESULT_FAILED after no data for update" in {
+        val noThisBookInDb = new Book("1234567890123", "", "", "", "", 0)
+        val updateResult = MongoDb.updateBooksInfo(noThisBookInDb)
 
-        val expected = bookJson.replace("初版", "再版").replace("560", "888")
-        val updateResult = MongoDb.updateBooksInfo(bookIsbn, expected)
-        MongoDb.getBooksByIsbn(bookIsbn).parseJson should be(expected.parseJson)
-
-        updateResult should be("UPDATE_SUCCESS")
+        updateResult.split(":") should contain(Result_Failed.toString)
     }
 
-    it should "return UPDATE_FAILED after no data for update" in {
-        val updateResult = MongoDb.updateBooksInfo("not_exist_key", "any data")
-
-        updateResult.split(":") should contain("UPDATE_FAILED")
+    it should "return RESULT_FAILED if books is null" in {
+        val updateResult = MongoDb.updateBooksInfo(null)
+        updateResult.split(":") should contain(Result_Failed.toString)
     }
 
     "listData" should "return all books list" in {
@@ -203,24 +206,27 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
     }
 
+
     it should "return empty list, if there is no book" in {
         MongoDb.listAllBooks().size should be(0)
     }
 
-    "deleteData" should "return DELETE_SUCCESS after delete success" in {
+    "deleteData" should "return RESULT_SUCCESS after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
-        MongoDb.addBooks("", booksData(0)) should be("INSERT_OK")
+        MongoDb.addBooks(gson.fromJson(booksData(0), classOf[Book])) should be(Result_Success.toString)
 
         info("delete book from MongoDB")
-        MongoDb.deleteBooksByIsbn("9789863476733") should be("DELETE_SUCCESS")
+        MongoDb.deleteBooksByIsbn("9789863476733") should be(Result_Success.toString)
     }
 
-    it should "return DELETE_FAILED, after delete failed" in {
-        MongoDb.deleteBooksByIsbn("non_exist_key") should be("DELETE_FAILED")
+
+    it should "return RESULT_FAILED, after delete failed" in {
+        MongoDb.deleteBooksByIsbn("non_exist_key") should be(Result_Failed.toString)
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
-        booksData.foreach(MongoDb.addBooks("", _))
-        booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
+        val bookList = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
+        bookList.foreach(MongoDb.addBooks)
+        bookList
     }
 }

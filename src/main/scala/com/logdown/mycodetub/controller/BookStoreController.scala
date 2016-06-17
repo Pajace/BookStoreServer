@@ -24,43 +24,39 @@ object BookStoreApi {
 @Singleton
 class BookStoreController @Inject()(db: Database[Book]) extends Controller {
 
-    val gson = new Gson
-
     post(BookStoreApi.path_create) {
         book: Book =>
-            db.addBooks(book.isbn, gson.toJson(book))
+            db.addBooks(book)
             response.created.location(s"/bookstore/${book.isbn}").body("add_success")
     }
 
-    get(BookStoreApi.path_get(":isbn")) {
-        request: Request =>
-            val bookJsonString = db.getBooksByIsbn(request.params("isbn"))
-            if (bookJsonString == "") response.notFound
-            else gson.fromJson[Book](bookJsonString, classOf[Book])
-    }
-
-    get(BookStoreApi.path_list) {
-        request: Request =>
-            response.ok
-            db.listAllBooks()
-    }
-
-    put(BookStoreApi.path_update) {
-        book: Book =>
-            val bookJsonString = gson.toJson(book)
-            db.updateBooksInfo(book.isbn, bookJsonString)
-            response.accepted.location(s"/bookstore/${book.isbn}")
-    }
-
-    delete(BookStoreApi.path_delete(":isbn")) {
-        request: Request =>
-            val key = request.params("isbn")
-            db.deleteBooksByIsbn(key) match {
-                case "DELETE_FAILED" => response.badRequest
-                case "DELETE_SUCCESS" => response.accepted
-            }
-//            if (deleteResult == "DELETE_FAILED") response.badRequest
-//            else response.accepted.body(deleteResult)
-    }
+//    get(BookStoreApi.path_get(":isbn")) {
+//        request: Request =>
+//            val bookJsonString = db.getBooksByIsbn(request.params("isbn"))
+//            if (bookJsonString == "") response.notFound
+//            else gson.fromJson[Book](bookJsonString, classOf[Book])
+//    }
+//
+//    get(BookStoreApi.path_list) {
+//        request: Request =>
+//            response.ok
+//            db.listAllBooks()
+//    }
+//
+//    put(BookStoreApi.path_update) {
+//        book: Book =>
+//            val bookJsonString = gson.toJson(book)
+//            db.updateBooksInfo(book.isbn, bookJsonString)
+//            response.accepted.location(s"/bookstore/${book.isbn}")
+//    }
+//
+//    delete(BookStoreApi.path_delete(":isbn")) {
+//        request: Request =>
+//            val key = request.params("isbn")
+//            db.deleteBooksByIsbn(key) match {
+//                case "DELETE_FAILED" => response.badRequest
+//                case "DELETE_SUCCESS" => response.accepted
+//            }
+//    }
 
 }
