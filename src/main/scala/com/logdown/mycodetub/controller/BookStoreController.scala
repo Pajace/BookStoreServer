@@ -30,12 +30,13 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
             response.created.location(s"/bookstore/${book.isbn}").body(result)
     }
 
-    //    get(BookStoreApi.path_get(":isbn")) {
-    //        request: Request =>
-    //            val bookJsonString = db.getBooksByIsbn(request.params("isbn"))
-    //            if (bookJsonString == "") response.notFound
-    //            else gson.fromJson[Book](bookJsonString, classOf[Book])
-    //    }
+    get(BookStoreApi.path_get(":isbn")) {
+        request: Request =>
+            db.getBooksByIsbn(request.params("isbn")) match {
+                case Some(b) => b
+                case None => response.notFound
+            }
+    }
     //
     //    get(BookStoreApi.path_list) {
     //        request: Request =>

@@ -1,25 +1,37 @@
 package com.logdown.mycodetub
 
+import com.google.gson.Gson
 import com.google.inject.Stage
+import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
-import com.logdown.mycodetub.db.{Book, Database}
+import com.logdown.mycodetub.db.{Book, Database, MongoDb}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
+import org.scalamock.scalatest._
+import org.scalatest._
 
 /**
   * Created by pajace_chen on 2016/6/6.
   */
-class BookStoreControllerTest extends FeatureTest {
+class BookStoreControllerTest extends FeatureTest with MockFactory {
 
     override val server = new EmbeddedHttpServer(
         twitterServer = new BookStoreServer,
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
+    val gson : Gson = new Gson()
+
+    @Bind
+    @MongoDb
+    val mockMongoDb = stub[Database[Book]]
 
     "POST" should {
         "response created and GET location when request for add is made" in {
+
+            (mockMongoDb.addBooks _).when(*).returns(Database.Result_Success.toString)
+
             val expectedIsbn = "9787512387744"
             server.httpPost(
                 path = BookStoreApi.path_create,
@@ -42,36 +54,30 @@ class BookStoreControllerTest extends FeatureTest {
     }
 
     "GET" should {
-        s"list book's information when GET ${BookStoreApi.path_get("isbn")} request is made" in {
-            val expectedIsbn = "9789869279987"
-            val expectedBookJsonData =
-                s"""
-                   |{
-                   |"isbn":"${expectedIsbn}",
-                   |"name":"Growth Hack",
-                   |"author":"Xdite",
-                   |"publishing":"PCuSER電腦人文化",
-                   |"version":"初版",
-                   |"price":360.0
-                   |}
-                """.stripMargin
-
-            val response = server.httpPost(
-                path = BookStoreApi.path_create,
-                postBody = expectedBookJsonData,
-                andExpect = Status.Created,
-                withLocation = BookStoreApi.path_get(expectedIsbn)
+        s"return book's json string when GET ${BookStoreApi.path_get("isbn")} request is made" in {
+            val book: Book = new Book(
+                isbn = "9789863475385",
+                name = "JavaScript應用程式開發實務",
+                author = "艾里亞特 ; 楊仁和",
+                publishing = "碁峰資訊",
+                version = "初版",
+                price = 480
             )
+
+            (mockMongoDb.getBooksByIsbn _).when(book.isbn).returns(Option(book))
+            val bookJson = gson.toJson(book, classOf[Book])
 
             // get data and assert
             server.httpGetJson[Book](
-                path = response.location.get,
-                withJsonBody = expectedBookJsonData
+                path = BookStoreApi.path_get(book.isbn),
+                withJsonBody = bookJson
             )
         }
 
-        "response NotFound, if book's isbn of request is not exist " in {
+        "response NotFound, if book's isbn of request is not exist" in {
             val notFoundIsbn = "1234567890123"
+            (mockMongoDb.getBooksByIsbn _).when(notFoundIsbn).returns(None)
+
             server.httpGet(
                 path = BookStoreApi.path_get(notFoundIsbn),
                 andExpect = Status.NotFound)
