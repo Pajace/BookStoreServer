@@ -1,11 +1,10 @@
 package com.logdown.mycodetub.controller
 
-import com.google.gson.Gson
 import com.google.inject.{Inject, Singleton}
+import com.logdown.mycodetub.db.Database._
 import com.logdown.mycodetub.db.{Book, Database}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
-import com.logdown.mycodetub.db.Database._
 
 /**
   * Created by pajace_chen on 2016/6/6.
@@ -51,18 +50,18 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
         book: Book =>
             db.updateBooksInfo(book) match {
                 case `updateSuccess` => response.accepted.location(s"/bookstore/${book.isbn}")
-                case _ => response.notFound.body(book.isbn +" not found")
+                case _ => response.notFound.body(book.isbn + " not found")
             }
 
     }
-    //
-    //    delete(BookStoreApi.path_delete(":isbn")) {
-    //        request: Request =>
-    //            val key = request.params("isbn")
-    //            db.deleteBooksByIsbn(key) match {
-    //                case "DELETE_FAILED" => response.badRequest
-    //                case "DELETE_SUCCESS" => response.accepted
-    //            }
-    //    }
+
+    delete(BookStoreApi.path_delete(":isbn")) {
+        request: Request =>
+            val key = request.params("isbn")
+            db.deleteBooksByIsbn(key) match {
+                case "RESULT_FAILED" => response.notFound
+                case "RESULT_SUCCESS" => response.accepted
+            }
+    }
 
 }
