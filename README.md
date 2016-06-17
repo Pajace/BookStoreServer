@@ -3,11 +3,16 @@
 This book store server is a practice by using Twitter's Finatra, MongoDB and Scala to build up. In this project, you can know how to wriate a future test, unit test by Scala, and how to use Scala MongoDB driver to operate MongoDB.
 
 ## This book store server provide following api
-- POST    /bookstore/add
-- GET     /bookstore/:isbn
-- GET     /bookstore/list
-- PUT     /bookstore/update
-- DELETE  /bookstore/delete/:isbn
+- POST    /bookstore/add  
+Add one book into server
+- GET     /bookstore/:isbn  
+get one book by using isbn from server
+- GET     /bookstore/list  
+get all books list from server
+- PUT     /bookstore/update  
+update one book's info
+- DELETE  /bookstore/delete/:isbn  
+delete one book from server
 
 ## Run server
 `sbt run`
