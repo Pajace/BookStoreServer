@@ -1,5 +1,8 @@
 # BookStoreServer
-This book store server provide following api
+
+This book store server is a practice by using Twitter's Finatra, MongoDB and Scala to build up. In this project, you can know how to wriate a future test, unit test by Scala, and how to use Scala MongoDB driver to operate MongoDB.
+
+## This book store server provide following api
 - POST    /bookstore/add
 - GET     /bookstore/:isbn
 - GET     /bookstore/list
@@ -66,3 +69,10 @@ $ docker pull mongo:3.3
 # create and run mongodb docker container with name mongodb_3.3
 $ docker run -d --name mongodb_3.3 -p 27017:27017 mongo:3.3.6
 ```
+
+# Reference
+- [Finatra.info](http://twitter.github.io/finatra/)
+- [Docker image for Mongo DB](https://hub.docker.com/_/mongo/)
+- [Mongo DB Scala Driver](https://docs.mongodb.com/ecosystem/drivers/scala/#mongo-scala-driver)
+- [Scala Mock](http://scalamock.org/)
+- [Scala Sbt](http://www.scala-sbt.org/)
