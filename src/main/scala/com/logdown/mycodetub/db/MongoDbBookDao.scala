@@ -16,18 +16,13 @@ import org.mongodb.scala.{MongoClient, _}
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://" + BookStoreServerMain.DefaultMongoDBUrl)
-
-    private val database = mongoClient.getDatabase("bookstore")
-
-    def fetchCollection(collectionName: String) = database.getCollection(collectionName)
-}
 
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDbBookDao(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao {
+class MongoDbBookDao(collection: MongoCollection[Document] =
+                     MongoDbConnector.fetchCollection("books")
+                    ) extends Logging with BookDao {
 
     val gson: Gson = new Gson
 
