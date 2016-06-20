@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import BookDao._
 import com.logdown.mycodetub.db.MongoDbConnector
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException
@@ -27,38 +26,38 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
 
     val gson: Gson = new Gson
 
-    override def insertBook(book: Book): String = {
+    override def insertBook(book: Book): Boolean = {
 
         val bookJsonString = gson.toJson(book)
         val bookDocument = createDocumentByJsonString(bookJsonString).orNull
-        if (bookDocument == null) return Result_Failed.toString
+        if (bookDocument == null) return false
 
         val insertFuture = collection.insertOne(bookDocument).toFuture()
 
         val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
-        if (addResult.contains("successfully"))
-            BookDao.Result_Success.toString
-        else
-            BookDao.Result_Failed.toString
+        if (addResult.contains("successfully")) true else false
     }
 
-    override def deleteBook(isbn: String): String = {
+    override def deleteBook(isbn: String): Boolean = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
-        if (deleteResult.head.getDeletedCount == 1) Result_Success.toString else Result_Failed.toString
+        if (deleteResult.head.getDeletedCount == 1) true else false
     }
 
-    override def updateBook(book: Book): String = {
+    override def updateBook(book: Book): Boolean = {
         val value = gson.toJson(book)
         val document: Document = createDocumentByJsonString(value).orNull
-        if (document == null) return Result_Failed.toString + ": json parse failed."
+        if (document == null) {
+            error("updateBook: json parse failed.")
+            return false
+        }
 
         val update = collection.replaceOne(Filters.eq("isbn", book.isbn), document)
 
         val updateResult = Await.result(update.head(), Duration(10, TimeUnit.SECONDS))
         (updateResult.getMatchedCount, updateResult.getModifiedCount) match {
-            case (1, 1) => Result_Success.toString
-            case _ => Result_Failed.toString
+            case (1, 1) => true
+            case _ => false
         }
     }
 

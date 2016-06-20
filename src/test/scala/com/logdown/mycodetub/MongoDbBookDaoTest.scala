@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.dao.BookDao._
 import com.logdown.mycodetub.db._
 import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
@@ -138,7 +137,7 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
     )
 
 
-    "addData" should "return Result_Success, after add data success" in {
+    "insertBook" should "return true, after insert book success" in {
         val expectedBook: Book = new Book(
             isbn = "9789863791621",
             name = "奠定大數據的基石 : NoSQL資料庫技術",
@@ -148,18 +147,18 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
             price = 560.0)
 
         val addResult = MongoDb.insertBook(expectedBook)
-        addResult should be(Result_Success.toString)
+        addResult should be(true)
 
         val actual = MongoDb.findByIsbn(expectedBook.isbn).get
         actual should be(expectedBook)
     }
 
-    it should "return RESULT_FAILED, if input book is null" in {
-        MongoDb.insertBook(null) should be(Result_Failed.toString)
+    it should "return false, if inserted book is null" in {
+        MongoDb.insertBook(null) should be(false)
     }
 
 
-    "updateData" should "return RESULT_SUCCESS after update success" in {
+    "updateBook" should "return true after update success" in {
         val book: Book = new Book(
             isbn = "9789863791621",
             name = "奠定大數據的基石 : NoSQL資料庫技術",
@@ -182,19 +181,32 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         val updateResult = MongoDb.updateBook(updatedBook)
         MongoDb.findByIsbn(book.isbn).get should be(updatedBook)
 
-        updateResult should be(Result_Success.toString)
+        updateResult should be(true)
     }
 
-    it should "return RESULT_FAILED after no data for update" in {
+    it should "return false after no data for update" in {
         val noThisBookInDb = new Book("1234567890123", "", "", "", "", 0)
         val updateResult = MongoDb.updateBook(noThisBookInDb)
 
-        updateResult.split(":") should contain(Result_Failed.toString)
+        updateResult should be(false)
     }
 
-    it should "return RESULT_FAILED if books is null" in {
+    it should "return false if books is null" in {
         val updateResult = MongoDb.updateBook(null)
-        updateResult.split(":") should contain(Result_Failed.toString)
+        updateResult should be(false)
+    }
+
+    "deleteData" should "return true after delete success" in {
+        info("add book(isbn=9789863476733) in MongoDB")
+        MongoDb.insertBook(gson.fromJson(booksData(0), classOf[Book])) should be(true)
+
+        info("delete book from MongoDB")
+        MongoDb.deleteBook("9789863476733") should be(true)
+    }
+
+
+    it should "return false, after delete failed" in {
+        MongoDb.deleteBook("non_exist_key") should be(false)
     }
 
     "listData" should "return all books list" in {
@@ -210,19 +222,6 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
 
     it should "return empty list, if there is no book" in {
         MongoDb.listAll().size should be(0)
-    }
-
-    "deleteData" should "return RESULT_SUCCESS after delete success" in {
-        info("add book(isbn=9789863476733) in MongoDB")
-        MongoDb.insertBook(gson.fromJson(booksData(0), classOf[Book])) should be(Result_Success.toString)
-
-        info("delete book from MongoDB")
-        MongoDb.deleteBook("9789863476733") should be(Result_Success.toString)
-    }
-
-
-    it should "return RESULT_FAILED, after delete failed" in {
-        MongoDb.deleteBook("non_exist_key") should be(Result_Failed.toString)
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
