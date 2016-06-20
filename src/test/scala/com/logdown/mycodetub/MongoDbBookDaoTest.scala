@@ -204,7 +204,6 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         MongoDb.deleteBook("9789863476733") should be(true)
     }
 
-
     it should "return false, after delete failed" in {
         MongoDb.deleteBook("non_exist_key") should be(false)
     }
@@ -219,9 +218,26 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
     }
 
-
     it should "return empty list, if there is no book" in {
         MongoDb.listAll().size should be(0)
+    }
+
+    "findByName" should "return matched books" in {
+        info("add 10 books into mongo db")
+        val expectedBookList: List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
+
+        val booksListFromDb : List[Book] = MongoDb.findByName("Agile學習手冊 : Scrum、XP、精實和看板方法")
+
+        booksListFromDb.size should be(1)
+    }
+
+    it should "return empty list if no books matched" in {
+        info("add 10 books into mongo db")
+        Add10BooksIntoMongoDbAndReturnBooksList()
+
+        val booksListFromDb : List[Book] = MongoDb.findByName("Agile")
+
+        booksListFromDb.size should be(0)
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {

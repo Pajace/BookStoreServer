@@ -72,12 +72,23 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
             .projection(fields(excludeId()))
 
         try {
-            Option(gson.fromJson(Await.result(findFuture.head, Duration(10, TimeUnit.SECONDS)).toJson(), classOf[Book]))
+            Option(gson.fromJson(Await.result(findFuture.head, secondsDuration(10))
+                .toJson(), classOf[Book]))
         } catch {
             case illEx: IllegalStateException =>
                 println("Error" + illEx.getMessage)
                 None
         }
+    }
+
+    override def findByName(name: String): List[Book] = {
+        List[Book]()
+        val findFuture = collection.find(Filters.eq("name", name))
+            .projection(fields(excludeId())).toFuture()
+
+        val allMatchedBooks = Await.result(findFuture, secondsDuration(20))
+            .map(b => gson.fromJson(b.toJson(), classOf[Book]))
+        allMatchedBooks.toList
     }
 
     private def createDocumentByJsonString(jsonString: String): Option[Document] = {
@@ -93,4 +104,7 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
         }
     }
 
+    private def secondsDuration(seconds: Long): Duration = {
+        Duration(seconds, TimeUnit.SECONDS)
+    }
 }

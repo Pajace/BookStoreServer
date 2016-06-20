@@ -15,5 +15,7 @@ trait BookDao {
 
     def findByIsbn(isbn: String): Option[Book]
 
+    def findByName(name: String): List[Book]
+
     def listAll(): List[Book]
 }
