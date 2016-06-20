@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.BookStoreServerMain
-import com.logdown.mycodetub.db.Database._
+import com.logdown.mycodetub.db.BookDao._
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException
 import org.bson.json.JsonParseException
@@ -27,11 +27,11 @@ object MongoDbConnector {
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with Database[Book] {
+class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao[Book] {
 
     val gson: Gson = new Gson
 
-    override def addBooks(book: Book): String = {
+    override def insertBook(book: Book): String = {
 
         val bookJsonString = gson.toJson(book)
         val bookDocument = createDocumentByJsonString(bookJsonString).orNull
@@ -41,18 +41,18 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
 
         val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
         if (addResult.contains("successfully"))
-            Database.Result_Success.toString
+            BookDao.Result_Success.toString
         else
-            Database.Result_Failed.toString
+            BookDao.Result_Failed.toString
     }
 
-    override def deleteBooksByIsbn(isbn: String): String = {
+    override def deleteBook(isbn: String): String = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
         if (deleteResult.head.getDeletedCount == 1) Result_Success.toString else Result_Failed.toString
     }
 
-    override def updateBooksInfo(book: Book): String = {
+    override def updateBook(book: Book): String = {
         val value = gson.toJson(book)
         val document: Document = createDocumentByJsonString(value).orNull
         if (document == null) return Result_Failed.toString + ": json parse failed."

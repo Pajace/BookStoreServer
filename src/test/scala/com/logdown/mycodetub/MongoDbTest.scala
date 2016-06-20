@@ -3,10 +3,9 @@ package com.logdown.mycodetub
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
-import com.logdown.mycodetub.db.{Book, Database, MongoDb, MongoDbConnector}
-import com.logdown.mycodetub.db.Database._
+import com.logdown.mycodetub.db.BookDao._
+import com.logdown.mycodetub.db._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
-import spray.json._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -17,7 +16,7 @@ import scala.concurrent.duration.Duration
 class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     val TestCollection = MongoDbConnector.fetchCollection("test")
-    val MongoDb: Database[Book] = new MongoDb(TestCollection)
+    val MongoDb: BookDao[Book] = new MongoDb(TestCollection)
     val EmptyString = ""
     val gson: Gson = new Gson
 
@@ -146,7 +145,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
             version = "初版",
             price = 560.0)
 
-        val addResult = MongoDb.addBooks(expectedBook)
+        val addResult = MongoDb.insertBook(expectedBook)
         addResult should be(Result_Success.toString)
 
         val actual = MongoDb.getBooksByIsbn(expectedBook.isbn).get
@@ -154,7 +153,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
     }
 
     it should "return RESULT_FAILED, if input book is null" in {
-        MongoDb.addBooks(null) should be(Result_Failed.toString)
+        MongoDb.insertBook(null) should be(Result_Failed.toString)
     }
 
 
@@ -175,10 +174,10 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
             version = "再版",
             price = 980)
 
-        MongoDb.addBooks(book)
+        MongoDb.insertBook(book)
         MongoDb.getBooksByIsbn(book.isbn).get should be(book)
 
-        val updateResult = MongoDb.updateBooksInfo(updatedBook)
+        val updateResult = MongoDb.updateBook(updatedBook)
         MongoDb.getBooksByIsbn(book.isbn).get should be(updatedBook)
 
         updateResult should be(Result_Success.toString)
@@ -186,13 +185,13 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     it should "return RESULT_FAILED after no data for update" in {
         val noThisBookInDb = new Book("1234567890123", "", "", "", "", 0)
-        val updateResult = MongoDb.updateBooksInfo(noThisBookInDb)
+        val updateResult = MongoDb.updateBook(noThisBookInDb)
 
         updateResult.split(":") should contain(Result_Failed.toString)
     }
 
     it should "return RESULT_FAILED if books is null" in {
-        val updateResult = MongoDb.updateBooksInfo(null)
+        val updateResult = MongoDb.updateBook(null)
         updateResult.split(":") should contain(Result_Failed.toString)
     }
 
@@ -213,20 +212,20 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     "deleteData" should "return RESULT_SUCCESS after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
-        MongoDb.addBooks(gson.fromJson(booksData(0), classOf[Book])) should be(Result_Success.toString)
+        MongoDb.insertBook(gson.fromJson(booksData(0), classOf[Book])) should be(Result_Success.toString)
 
         info("delete book from MongoDB")
-        MongoDb.deleteBooksByIsbn("9789863476733") should be(Result_Success.toString)
+        MongoDb.deleteBook("9789863476733") should be(Result_Success.toString)
     }
 
 
     it should "return RESULT_FAILED, after delete failed" in {
-        MongoDb.deleteBooksByIsbn("non_exist_key") should be(Result_Failed.toString)
+        MongoDb.deleteBook("non_exist_key") should be(Result_Failed.toString)
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
         val bookList = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
-        bookList.foreach(MongoDb.addBooks)
+        bookList.foreach(MongoDb.insertBook)
         bookList
     }
 }

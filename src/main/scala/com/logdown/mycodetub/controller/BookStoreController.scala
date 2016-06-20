@@ -1,8 +1,8 @@
 package com.logdown.mycodetub.controller
 
 import com.google.inject.{Inject, Singleton}
-import com.logdown.mycodetub.db.Database._
-import com.logdown.mycodetub.db.{Book, Database}
+import com.logdown.mycodetub.db.BookDao._
+import com.logdown.mycodetub.db.{Book, BookDao}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 
@@ -22,11 +22,11 @@ object BookStoreApi {
 }
 
 @Singleton
-class BookStoreController @Inject()(db: Database[Book]) extends Controller {
+class BookStoreController @Inject()(db: BookDao[Book]) extends Controller {
 
     post(BookStoreApi.path_create) {
         book: Book =>
-            val result = db.addBooks(book)
+            val result = db.insertBook(book)
             response.created.location(s"/bookstore/${book.isbn}").body(result)
     }
 
@@ -48,7 +48,7 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
         val updateSuccess = Result_Success.toString
 
         book: Book =>
-            db.updateBooksInfo(book) match {
+            db.updateBook(book) match {
                 case `updateSuccess` => response.accepted.location(s"/bookstore/${book.isbn}")
                 case _ => response.notFound.body(book.isbn + " not found")
             }
@@ -58,7 +58,7 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     delete(BookStoreApi.path_delete(":isbn")) {
         request: Request =>
             val key = request.params("isbn")
-            db.deleteBooksByIsbn(key) match {
+            db.deleteBook(key) match {
                 case "RESULT_FAILED" => response.notFound
                 case "RESULT_SUCCESS" => response.accepted
             }

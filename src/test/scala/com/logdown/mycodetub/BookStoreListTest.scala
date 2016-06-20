@@ -4,12 +4,11 @@ import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
-import com.logdown.mycodetub.db.{Book, Database, MemoryDatabase}
+import com.logdown.mycodetub.db.{Book, BookDao, MemoryBookDao}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.Mockito
 import com.twitter.inject.server.FeatureTest
-import com.twitter.util.Future
 
 /**
   * Created by pajace_chen on 2016/6/6.
@@ -22,8 +21,8 @@ class BookStoreListTest extends FeatureTest with Mockito {
         verbose = true)
 
     @Bind
-    @MemoryDatabase
-    val memoryDatabase = mock[Database[Book]]
+    @MemoryBookDao
+    val memoryDatabase = mock[BookDao[Book]]
 
     "GET" should {
         s"list all books information when GET ${BookStoreApi.path_list} request is made" in {

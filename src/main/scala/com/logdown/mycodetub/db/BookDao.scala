@@ -8,20 +8,20 @@ package com.logdown.mycodetub.db
   *
   * @tparam T value type
   */
-trait Database[T] {
+trait BookDao[T] {
 
-    def addBooks(value: T): String
+    def insertBook(value: T): String
 
-    def deleteBooksByIsbn(isbn: String): String
+    def deleteBook(isbn: String): String
 
-    def updateBooksInfo(books: T): String
+    def updateBook(books: T): String
 
     def getBooksByIsbn(isbn: String): Option[T]
 
     def listAllBooks(): List[T]
 }
 
-object Database extends Enumeration {
+object BookDao extends Enumeration {
     val Result_Success = Value("RESULT_SUCCESS")
     val Result_Failed = Value("RESULT_FAILED")
 }

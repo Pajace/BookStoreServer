@@ -1,16 +1,16 @@
 package com.logdown.mycodetub.db
 
-import com.logdown.mycodetub.db.Database._
+import com.logdown.mycodetub.db.BookDao._
 
 import scala.collection.mutable
 
 /**
   * Created by Pajace on 2016/6/5.
   */
-class MemoryDatabase(localMemoryDb: mutable.Map[String, Book] =
-                     mutable.Map[String, Book]()) extends Database[Book] {
+class MemoryBookDao(localMemoryDb: mutable.Map[String, Book] =
+                     mutable.Map[String, Book]()) extends BookDao[Book] {
 
-    override def addBooks(book: Book): String = {
+    override def insertBook(book: Book): String = {
         localMemoryDb.put(book.isbn, book)
         localMemoryDb.get(book.isbn) match {
             case Some(b) => Result_Success.toString
@@ -18,14 +18,14 @@ class MemoryDatabase(localMemoryDb: mutable.Map[String, Book] =
         }
     }
 
-    override def deleteBooksByIsbn(key: String): String = {
+    override def deleteBook(key: String): String = {
         localMemoryDb.remove(key) match {
             case Some(deletedData) => Result_Success.toString
             case None => Result_Failed.toString
         }
     }
 
-    override def updateBooksInfo(book: Book): String = {
+    override def updateBook(book: Book): String = {
         localMemoryDb.contains(book.isbn) match {
             case true =>
                 localMemoryDb.put(book.isbn, book)
