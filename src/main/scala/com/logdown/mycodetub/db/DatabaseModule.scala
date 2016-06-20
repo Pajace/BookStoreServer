@@ -1,6 +1,7 @@
 package com.logdown.mycodetub.db
 
 import com.google.inject.{Provides, Singleton}
+import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
 import com.twitter.inject.TwitterModule
 
 /**
@@ -10,8 +11,8 @@ object DatabaseModule extends TwitterModule {
 
     @Singleton
     @Provides
-    def providesDatabase: Database[Book] = {
-        //        new MemoryDatabase()
-        new MongoDb()
+    def providesDatabase: BookDao = {
+        //        new MemoryDbBookDao()
+        new MongoDbBookDao()
     }
 }

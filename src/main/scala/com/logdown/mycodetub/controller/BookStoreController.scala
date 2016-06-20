@@ -1,10 +1,11 @@
 package com.logdown.mycodetub.controller
 
 import com.google.inject.{Inject, Singleton}
-import com.logdown.mycodetub.db.Database._
-import com.logdown.mycodetub.db.{Book, Database}
+import com.logdown.mycodetub.data.Book
+import com.logdown.mycodetub.db.dao.BookDao
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
+import com.logdown.mycodetub.db.dao.BookDao._
 
 /**
   * Created by pajace_chen on 2016/6/6.
@@ -22,17 +23,17 @@ object BookStoreApi {
 }
 
 @Singleton
-class BookStoreController @Inject()(db: Database[Book]) extends Controller {
+class BookStoreController @Inject()(db: BookDao) extends Controller {
 
     post(BookStoreApi.path_create) {
         book: Book =>
-            val result = db.addBooks(book)
+            val result = db.insertBook(book)
             response.created.location(s"/bookstore/${book.isbn}").body(result)
     }
 
     get(BookStoreApi.path_get(":isbn")) {
         request: Request =>
-            db.getBooksByIsbn(request.params("isbn")) match {
+            db.findByIsbn(request.params("isbn")) match {
                 case Some(b) => b
                 case None => response.notFound
             }
@@ -41,14 +42,14 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     get(BookStoreApi.path_list) {
         request: Request =>
             response.ok
-            db.listAllBooks()
+            db.listAll()
     }
 
     put(BookStoreApi.path_update) {
         val updateSuccess = Result_Success.toString
 
         book: Book =>
-            db.updateBooksInfo(book) match {
+            db.updateBook(book) match {
                 case `updateSuccess` => response.accepted.location(s"/bookstore/${book.isbn}")
                 case _ => response.notFound.body(book.isbn + " not found")
             }
@@ -58,9 +59,12 @@ class BookStoreController @Inject()(db: Database[Book]) extends Controller {
     delete(BookStoreApi.path_delete(":isbn")) {
         request: Request =>
             val key = request.params("isbn")
-            db.deleteBooksByIsbn(key) match {
+            println(s"delete key is $key")
+            val result = db.deleteBook(key)
+            result match {
                 case "RESULT_FAILED" => response.notFound
                 case "RESULT_SUCCESS" => response.accepted
+                case _ => throw new NoSuchFieldException(result)
             }
     }
 

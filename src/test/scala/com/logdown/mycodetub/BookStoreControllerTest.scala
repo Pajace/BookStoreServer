@@ -4,8 +4,9 @@ import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
-import com.logdown.mycodetub.db.Database._
-import com.logdown.mycodetub.db.{Book, Database, MongoDb}
+import com.logdown.mycodetub.data.Book
+import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.dao.BookDao._
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
@@ -24,13 +25,13 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     val gson: Gson = new Gson()
 
     @Bind
-    @MongoDb
-    val stubMongoDB = stub[Database[Book]]
+    @MongoDbBookDao
+    val stubBookDao = stub[BookDao]
 
     "POST /bookstore/add" should {
         "response created and GET location when request for add is made" in {
 
-            (stubMongoDB.addBooks _).when(*).returns(Database.Result_Success.toString)
+            (stubBookDao.insertBook _).when(*).returns(BookDao.Result_Success.toString)
 
             val expectedIsbn = "9787512387744"
             server.httpPost(
@@ -48,7 +49,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                     """.stripMargin,
                 andExpect = Status.Created,
                 withLocation = BookStoreApi.path_get(expectedIsbn),
-                withBody = Database.Result_Success.toString
+                withBody = BookDao.Result_Success.toString
             )
         }
     }
@@ -64,7 +65,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 price = 480
             )
 
-            (stubMongoDB.getBooksByIsbn _).when(book.isbn).returns(Option(book))
+            (stubBookDao.findByIsbn _).when(book.isbn).returns(Option(book))
             val bookJson = gson.toJson(book, classOf[Book])
 
             // get data and assert
@@ -76,7 +77,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
         "response NotFound, if book's isbn of request is not exist" in {
             val notFoundIsbn = "1234567890123"
-            (stubMongoDB.getBooksByIsbn _).when(notFoundIsbn).returns(None)
+            (stubBookDao.findByIsbn _).when(notFoundIsbn).returns(None)
 
             server.httpGet(
                 path = BookStoreApi.path_get(notFoundIsbn),
@@ -126,7 +127,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 gson.fromJson(book2, classOf[Book]),
                 gson.fromJson(book3, classOf[Book]))
 
-            (stubMongoDB.listAllBooks _).when().returns(expectedResult)
+            (stubBookDao.listAll _).when().returns(expectedResult)
 
             server.httpGetJson[List[Book]](
                 path = BookStoreApi.path_list,
@@ -138,7 +139,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
     "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
-            (stubMongoDB.updateBooksInfo _).when(*).returns(Database.Result_Success.toString)
+            (stubBookDao.updateBook _).when(*).returns(BookDao.Result_Success.toString)
 
             // update data
             server.httpPut(
@@ -160,7 +161,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
 
         "response NotFound, if there is not exist book for update" in {
-            (stubMongoDB.updateBooksInfo _).when(*).returns(Database.Result_Failed.toString)
+            (stubBookDao.updateBook _).when(*).returns(BookDao.Result_Failed.toString)
 
             // update data
             server.httpPut(
@@ -186,7 +187,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         "response Accepted and Delete_Success when DELETE is success" in {
             val expectedIsbn = "1234567890000"
 
-            (stubMongoDB.deleteBooksByIsbn _).when(expectedIsbn).returns(Result_Success.toString)
+            (stubBookDao.deleteBook _).when(expectedIsbn).returns(Result_Success.toString)
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
@@ -196,7 +197,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
         "response \"NotFound\", when delete key isn't exist" in {
             val notExistKey = "1111111111111"
-            (stubMongoDB.deleteBooksByIsbn _).when(notExistKey).returns(Result_Failed.toString)
+            (stubBookDao.deleteBook _).when(notExistKey).returns(Result_Failed.toString)
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(notExistKey),

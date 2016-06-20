@@ -1,37 +1,33 @@
-package com.logdown.mycodetub.db
+package com.logdown.mycodetub.db.dao
 
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
-import com.logdown.mycodetub.BookStoreServerMain
-import com.logdown.mycodetub.db.Database._
+import com.logdown.mycodetub.data.Book
+import BookDao._
+import com.logdown.mycodetub.db.MongoDbConnector
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException
 import org.bson.json.JsonParseException
+import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
 import org.mongodb.scala.model.Projections._
-import org.mongodb.scala.{MongoClient, _}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
-object MongoDbConnector {
-    private val mongoClient = MongoClient("mongodb://" + BookStoreServerMain.DefaultMongoDBUrl)
-
-    private val database = mongoClient.getDatabase("bookstore")
-
-    def fetchCollection(collectionName: String) = database.getCollection(collectionName)
-}
 
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with Database[Book] {
+class MongoDbBookDao(collection: MongoCollection[Document] =
+                     MongoDbConnector.fetchCollection("books")
+                    ) extends Logging with BookDao {
 
     val gson: Gson = new Gson
 
-    override def addBooks(book: Book): String = {
+    override def insertBook(book: Book): String = {
 
         val bookJsonString = gson.toJson(book)
         val bookDocument = createDocumentByJsonString(bookJsonString).orNull
@@ -41,18 +37,18 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
 
         val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
         if (addResult.contains("successfully"))
-            Database.Result_Success.toString
+            BookDao.Result_Success.toString
         else
-            Database.Result_Failed.toString
+            BookDao.Result_Failed.toString
     }
 
-    override def deleteBooksByIsbn(isbn: String): String = {
+    override def deleteBook(isbn: String): String = {
         val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
         val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
         if (deleteResult.head.getDeletedCount == 1) Result_Success.toString else Result_Failed.toString
     }
 
-    override def updateBooksInfo(book: Book): String = {
+    override def updateBook(book: Book): String = {
         val value = gson.toJson(book)
         val document: Document = createDocumentByJsonString(value).orNull
         if (document == null) return Result_Failed.toString + ": json parse failed."
@@ -66,13 +62,13 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         }
     }
 
-    override def listAllBooks(): List[Book] = {
+    override def listAll(): List[Book] = {
         val findAll: Future[Seq[Document]] = collection.find().projection(excludeId()).toFuture()
         val allData = Await.result(findAll, Duration(20, TimeUnit.SECONDS)).map(f => gson.fromJson(f.toJson(), classOf[Book]))
         allData.toList
     }
 
-    override def getBooksByIsbn(isbn: String): Option[Book] = {
+    override def findByIsbn(isbn: String): Option[Book] = {
         val findFuture = collection.find(Filters.eq("isbn", isbn))
             .projection(fields(excludeId()))
 
