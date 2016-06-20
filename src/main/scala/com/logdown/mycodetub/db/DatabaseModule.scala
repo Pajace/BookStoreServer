@@ -12,6 +12,6 @@ object DatabaseModule extends TwitterModule {
     @Provides
     def providesDatabase: BookDao = {
         //        new MemoryDatabase()
-        new MongoDb()
+        new MongoDbBookDao()
     }
 }

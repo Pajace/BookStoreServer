@@ -13,10 +13,10 @@ import scala.concurrent.duration.Duration
 /**
   * Created by pajace_chen on 2016/6/14.
   */
-class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
+class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     val TestCollection = MongoDbConnector.fetchCollection("test")
-    val MongoDb: BookDao = new MongoDb(TestCollection)
+    val MongoDb: BookDao = new MongoDbBookDao(TestCollection)
     val EmptyString = ""
     val gson: Gson = new Gson
 

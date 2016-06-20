@@ -27,7 +27,7 @@ object MongoDbConnector {
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao {
+class MongoDbBookDao(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao {
 
     val gson: Gson = new Gson
 

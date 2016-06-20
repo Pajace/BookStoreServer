@@ -5,7 +5,7 @@ import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.db.BookDao._
-import com.logdown.mycodetub.db.{Book, BookDao, MongoDb}
+import com.logdown.mycodetub.db.{Book, BookDao, MongoDbBookDao}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
@@ -24,7 +24,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     val gson: Gson = new Gson()
 
     @Bind
-    @MongoDb
+    @MongoDbBookDao
     val stubBookDao = stub[BookDao]
 
     "POST /bookstore/add" should {
