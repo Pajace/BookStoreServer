@@ -1,5 +1,6 @@
 package com.logdown.mycodetub.db
 
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
 
 import scala.collection.mutable

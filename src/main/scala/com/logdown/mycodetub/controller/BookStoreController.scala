@@ -1,8 +1,9 @@
 package com.logdown.mycodetub.controller
 
 import com.google.inject.{Inject, Singleton}
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
-import com.logdown.mycodetub.db.{Book, BookDao}
+import com.logdown.mycodetub.db.BookDao
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 

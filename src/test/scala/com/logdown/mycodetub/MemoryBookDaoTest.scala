@@ -1,7 +1,8 @@
 package com.logdown.mycodetub
 
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
-import com.logdown.mycodetub.db.{Book, BookDao, MemoryBookDao}
+import com.logdown.mycodetub.db.{BookDao, MemoryBookDao}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable

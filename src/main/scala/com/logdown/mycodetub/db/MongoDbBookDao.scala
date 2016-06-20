@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.BookStoreServerMain
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException

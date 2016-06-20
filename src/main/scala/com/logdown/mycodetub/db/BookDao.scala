@@ -1,5 +1,7 @@
 package com.logdown.mycodetub.db
 
+import com.logdown.mycodetub.data.Book
+
 /**
   * Created by Pajace on 2016/6/5.
   */

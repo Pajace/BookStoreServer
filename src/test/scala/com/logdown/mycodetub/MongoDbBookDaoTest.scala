@@ -3,6 +3,7 @@ package com.logdown.mycodetub
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
 import com.logdown.mycodetub.db._
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}

@@ -4,8 +4,9 @@ import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
+import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.BookDao._
-import com.logdown.mycodetub.db.{Book, BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.{BookDao, MongoDbBookDao}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
