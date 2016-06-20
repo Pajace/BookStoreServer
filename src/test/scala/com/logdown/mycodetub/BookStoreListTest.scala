@@ -22,7 +22,7 @@ class BookStoreListTest extends FeatureTest with Mockito {
 
     @Bind
     @MemoryBookDao
-    val memoryDatabase = mock[BookDao[Book]]
+    val memoryDatabase = mock[BookDao]
 
     "GET" should {
         s"list all books information when GET ${BookStoreApi.path_list} request is made" in {
@@ -66,7 +66,7 @@ class BookStoreListTest extends FeatureTest with Mockito {
                 gson.fromJson(book2, classOf[Book]),
                 gson.fromJson(book3, classOf[Book]))
 
-            memoryDatabase.listAllBooks().returns(expectedResult)
+            memoryDatabase.listAll().returns(expectedResult)
 
             server.httpGetJson[List[Book]](
                 path = BookStoreApi.path_list,

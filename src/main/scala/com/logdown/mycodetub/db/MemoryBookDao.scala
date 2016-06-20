@@ -8,7 +8,7 @@ import scala.collection.mutable
   * Created by Pajace on 2016/6/5.
   */
 class MemoryBookDao(localMemoryDb: mutable.Map[String, Book] =
-                     mutable.Map[String, Book]()) extends BookDao[Book] {
+                     mutable.Map[String, Book]()) extends BookDao {
 
     override def insertBook(book: Book): String = {
         localMemoryDb.put(book.isbn, book)
@@ -36,9 +36,9 @@ class MemoryBookDao(localMemoryDb: mutable.Map[String, Book] =
         }
     }
 
-    override def getBooksByIsbn(key: String): Option[Book] = localMemoryDb.get(key)
+    override def findByIsbn(key: String): Option[Book] = localMemoryDb.get(key)
 
-    override def listAllBooks(): List[Book] = localMemoryDb.values.toList
+    override def listAll(): List[Book] = localMemoryDb.values.toList
 
 
 }

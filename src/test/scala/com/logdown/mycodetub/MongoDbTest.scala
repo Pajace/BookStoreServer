@@ -16,7 +16,7 @@ import scala.concurrent.duration.Duration
 class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
     val TestCollection = MongoDbConnector.fetchCollection("test")
-    val MongoDb: BookDao[Book] = new MongoDb(TestCollection)
+    val MongoDb: BookDao = new MongoDb(TestCollection)
     val EmptyString = ""
     val gson: Gson = new Gson
 
@@ -148,7 +148,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         val addResult = MongoDb.insertBook(expectedBook)
         addResult should be(Result_Success.toString)
 
-        val actual = MongoDb.getBooksByIsbn(expectedBook.isbn).get
+        val actual = MongoDb.findByIsbn(expectedBook.isbn).get
         actual should be(expectedBook)
     }
 
@@ -175,10 +175,10 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
             price = 980)
 
         MongoDb.insertBook(book)
-        MongoDb.getBooksByIsbn(book.isbn).get should be(book)
+        MongoDb.findByIsbn(book.isbn).get should be(book)
 
         val updateResult = MongoDb.updateBook(updatedBook)
-        MongoDb.getBooksByIsbn(book.isbn).get should be(updatedBook)
+        MongoDb.findByIsbn(book.isbn).get should be(updatedBook)
 
         updateResult should be(Result_Success.toString)
     }
@@ -199,7 +199,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
         info("add 10 books into mongo db")
         val expectedBookList: List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
 
-        val booksListFromDB: List[Book] = MongoDb.listAllBooks()
+        val booksListFromDB: List[Book] = MongoDb.listAll()
 
         booksListFromDB.size should be(10)
         booksListFromDB.foreach((b: Book) => expectedBookList should contain(b))
@@ -207,7 +207,7 @@ class MongoDbTest extends FlatSpec with Matchers with BeforeAndAfterEach {
 
 
     it should "return empty list, if there is no book" in {
-        MongoDb.listAllBooks().size should be(0)
+        MongoDb.listAll().size should be(0)
     }
 
     "deleteData" should "return RESULT_SUCCESS after delete success" in {

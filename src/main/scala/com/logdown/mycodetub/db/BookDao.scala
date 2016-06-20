@@ -5,20 +5,18 @@ package com.logdown.mycodetub.db
   */
 /**
   * Database
-  *
-  * @tparam T value type
   */
-trait BookDao[T] {
+trait BookDao {
 
-    def insertBook(value: T): String
+    def insertBook(value: Book): String
 
     def deleteBook(isbn: String): String
 
-    def updateBook(books: T): String
+    def updateBook(books: Book): String
 
-    def getBooksByIsbn(isbn: String): Option[T]
+    def findByIsbn(isbn: String): Option[Book]
 
-    def listAllBooks(): List[T]
+    def listAll(): List[Book]
 }
 
 object BookDao extends Enumeration {

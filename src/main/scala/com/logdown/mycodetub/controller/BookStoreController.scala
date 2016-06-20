@@ -22,7 +22,7 @@ object BookStoreApi {
 }
 
 @Singleton
-class BookStoreController @Inject()(db: BookDao[Book]) extends Controller {
+class BookStoreController @Inject()(db: BookDao) extends Controller {
 
     post(BookStoreApi.path_create) {
         book: Book =>
@@ -32,7 +32,7 @@ class BookStoreController @Inject()(db: BookDao[Book]) extends Controller {
 
     get(BookStoreApi.path_get(":isbn")) {
         request: Request =>
-            db.getBooksByIsbn(request.params("isbn")) match {
+            db.findByIsbn(request.params("isbn")) match {
                 case Some(b) => b
                 case None => response.notFound
             }
@@ -41,7 +41,7 @@ class BookStoreController @Inject()(db: BookDao[Book]) extends Controller {
     get(BookStoreApi.path_list) {
         request: Request =>
             response.ok
-            db.listAllBooks()
+            db.listAll()
     }
 
     put(BookStoreApi.path_update) {
@@ -58,9 +58,12 @@ class BookStoreController @Inject()(db: BookDao[Book]) extends Controller {
     delete(BookStoreApi.path_delete(":isbn")) {
         request: Request =>
             val key = request.params("isbn")
-            db.deleteBook(key) match {
+            println(s"delete key is $key")
+            val result = db.deleteBook(key)
+            result match {
                 case "RESULT_FAILED" => response.notFound
                 case "RESULT_SUCCESS" => response.accepted
+                case _ => throw new NoSuchFieldException(result)
             }
     }
 

@@ -27,7 +27,7 @@ object MongoDbConnector {
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao[Book] {
+class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchCollection("books")) extends Logging with BookDao {
 
     val gson: Gson = new Gson
 
@@ -66,13 +66,13 @@ class MongoDb(collection: MongoCollection[Document] = MongoDbConnector.fetchColl
         }
     }
 
-    override def listAllBooks(): List[Book] = {
+    override def listAll(): List[Book] = {
         val findAll: Future[Seq[Document]] = collection.find().projection(excludeId()).toFuture()
         val allData = Await.result(findAll, Duration(20, TimeUnit.SECONDS)).map(f => gson.fromJson(f.toJson(), classOf[Book]))
         allData.toList
     }
 
-    override def getBooksByIsbn(isbn: String): Option[Book] = {
+    override def findByIsbn(isbn: String): Option[Book] = {
         val findFuture = collection.find(Filters.eq("isbn", isbn))
             .projection(fields(excludeId()))
 

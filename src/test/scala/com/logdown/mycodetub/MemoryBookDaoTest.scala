@@ -49,14 +49,14 @@ class MemoryBookDaoTest extends FlatSpec with Matchers {
         val db = new MemoryBookDao(fakeDb)
         db.deleteBook(book.isbn)
 
-        db.getBooksByIsbn(book.isbn) should be(None)
+        db.findByIsbn(book.isbn) should be(None)
     }
 
     it should "return Result_Failed, if delete data is failed" in {
         val db = new MemoryBookDao()
         val keyOfNoData = "whatEver"
 
-        db.getBooksByIsbn(keyOfNoData) should be(None)
+        db.findByIsbn(keyOfNoData) should be(None)
 
         db.deleteBook(keyOfNoData) should be(Result_Failed.toString)
     }
@@ -109,15 +109,15 @@ class MemoryBookDaoTest extends FlatSpec with Matchers {
         fakeDb.put(expectedBook.isbn, expectedBook)
 
         val db = new MemoryBookDao(fakeDb)
-        val actualResult = db.getBooksByIsbn(expectedBook.isbn)
+        val actualResult = db.findByIsbn(expectedBook.isbn)
 
         actualResult should be(Some[Book](expectedBook))
     }
 
     it should "return None if book's isbn isn't exist" in {
-        val db: BookDao[Book] = new MemoryBookDao()
+        val db: BookDao = new MemoryBookDao()
 
-        val actualResult = db.getBooksByIsbn("what ever")
+        val actualResult = db.findByIsbn("what ever")
 
         actualResult should be(None)
     }
@@ -136,8 +136,8 @@ class MemoryBookDaoTest extends FlatSpec with Matchers {
         val expectedBookList: List[Book] = List[Book](book1, book2, book3)
         expectedBookList.foreach((b: Book) => fakeDb.put(b.isbn, b))
 
-        val db: BookDao[Book] = new MemoryBookDao(fakeDb)
-        val actualBookList = db.listAllBooks()
+        val db: BookDao = new MemoryBookDao(fakeDb)
+        val actualBookList = db.listAll()
 
         for (book <- expectedBookList) {
             actualBookList should contain(book)
