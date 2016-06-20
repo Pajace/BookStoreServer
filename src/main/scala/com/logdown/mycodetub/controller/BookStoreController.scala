@@ -2,10 +2,10 @@ package com.logdown.mycodetub.controller
 
 import com.google.inject.{Inject, Singleton}
 import com.logdown.mycodetub.data.Book
-import BookDao._
 import com.logdown.mycodetub.db.dao.BookDao
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
+import com.logdown.mycodetub.db.dao.BookDao._
 
 /**
   * Created by pajace_chen on 2016/6/6.

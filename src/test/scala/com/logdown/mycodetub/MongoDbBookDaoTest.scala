@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import BookDao._
+import com.logdown.mycodetub.db.dao.BookDao._
 import com.logdown.mycodetub.db._
 import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}

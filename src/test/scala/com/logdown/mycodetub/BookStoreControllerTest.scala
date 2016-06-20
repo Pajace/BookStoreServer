@@ -5,8 +5,8 @@ import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
-import BookDao._
 import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.dao.BookDao._
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.server.FeatureTest
