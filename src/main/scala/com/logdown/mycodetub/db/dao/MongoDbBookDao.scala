@@ -1,18 +1,18 @@
-package com.logdown.mycodetub.db
+package com.logdown.mycodetub.db.dao
 
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
-import com.logdown.mycodetub.BookStoreServerMain
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.BookDao._
+import BookDao._
+import com.logdown.mycodetub.db.MongoDbConnector
 import com.twitter.inject.Logging
 import org.bson.BsonInvalidOperationException
 import org.bson.json.JsonParseException
+import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
 import org.mongodb.scala.model.Projections._
-import org.mongodb.scala.{MongoClient, _}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}

@@ -1,14 +1,14 @@
-package com.logdown.mycodetub.db
+package com.logdown.mycodetub.db.dao
 
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.BookDao._
+import BookDao._
 
 import scala.collection.mutable
 
 /**
   * Created by Pajace on 2016/6/5.
   */
-class MemoryBookDao(localMemoryDb: mutable.Map[String, Book] =
+class MemoryDbBookDao(localMemoryDb: mutable.Map[String, Book] =
                      mutable.Map[String, Book]()) extends BookDao {
 
     override def insertBook(book: Book): String = {

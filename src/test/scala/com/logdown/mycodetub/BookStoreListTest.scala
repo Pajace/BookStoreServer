@@ -5,7 +5,7 @@ import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.{BookDao, MemoryBookDao}
+import com.logdown.mycodetub.db.dao.{BookDao, MemoryDbBookDao}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.Mockito
@@ -22,7 +22,7 @@ class BookStoreListTest extends FeatureTest with Mockito {
         verbose = true)
 
     @Bind
-    @MemoryBookDao
+    @MemoryDbBookDao
     val memoryDatabase = mock[BookDao]
 
     "GET" should {
