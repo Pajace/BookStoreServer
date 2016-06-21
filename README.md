@@ -7,7 +7,7 @@ This book store server is a practice by using Twitter's Finatra, MongoDB and Sca
 Get one book by using isbn 
 - GET     /bookstore/list  
 Get all books info
-- GET     /bookstore/find_by_name?name="BOOKS'S NAME"
+- GET     /bookstore/find_by_name?name="BOOKS'S NAME"  
 Search books info by book's name
 - POST    /bookstore/add  
 Insert one book 
