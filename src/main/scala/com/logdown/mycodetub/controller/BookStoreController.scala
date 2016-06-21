@@ -20,6 +20,8 @@ object BookStoreApi {
     val path_update = "/bookstore/update"
 
     def path_delete(isbn: String) = s"/bookstore/delete/$isbn"
+
+    val path_find_by_name = "/bookstore/find_by_name"
 }
 
 @Singleton
@@ -44,6 +46,13 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
             val result = db.insertBook(book)
             if (result) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
             else response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultFailed)
+    }
+
+    get(BookStoreApi.path_find_by_name) {
+        request: Request =>
+            val findName = request.params.getOrElse("name", "")
+            val result = db.findByName(findName)
+            result
     }
 
     put(BookStoreApi.path_update) {
