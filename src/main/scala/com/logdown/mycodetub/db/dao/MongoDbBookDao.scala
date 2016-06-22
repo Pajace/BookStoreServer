@@ -112,7 +112,7 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
         result.toList
     }
 
-    def insertManyBooks(books: List[Book]): Boolean = {
+    override def insertManyBooks(books: List[Book]): Boolean = {
         val documents = books.map(createDocumentByJsonString(_).get)
 
         val insertManyFuture = collection.insertMany(documents).toFuture()
