@@ -226,7 +226,7 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         info("add 10 books into mongo db")
         val expectedBookList: List[Book] = Add10BooksIntoMongoDbAndReturnBooksList()
 
-        val booksListFromDb : List[Book] = MongoDb.findByName("Agile學習手冊 : Scrum、XP、精實和看板方法")
+        val booksListFromDb: List[Book] = MongoDb.findByName("Agile學習手冊 : Scrum、XP、精實和看板方法")
 
         booksListFromDb.size should be(1)
     }
@@ -235,9 +235,28 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         info("add 10 books into mongo db")
         Add10BooksIntoMongoDbAndReturnBooksList()
 
-        val booksListFromDb : List[Book] = MongoDb.findByName("Agile")
+        val booksListFromDb: List[Book] = MongoDb.findByName("Agile")
 
         booksListFromDb.size should be(0)
+    }
+
+    "findByIncludeName" should "return matched books" in {
+        info("add 10 books into mongo db")
+        val expectedResult = Add10BooksIntoMongoDbAndReturnBooksList().filter(_.name.contains("設計"))
+
+        val actualResult: List[Book] = MongoDb.findByIncludeName("設計")
+
+        actualResult.size should be(2)
+        actualResult.map(expectedResult.contains(_))
+    }
+
+    it should "return empty list, if no books is matched" in {
+        info("add 10 books into mongo db")
+        Add10BooksIntoMongoDbAndReturnBooksList().filter(_.name.contains("abcde"))
+
+        val actualResult = MongoDb.findByIncludeName("abcde")
+
+        actualResult.size should be(0)
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {

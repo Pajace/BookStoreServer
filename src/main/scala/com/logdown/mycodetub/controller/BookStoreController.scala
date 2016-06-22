@@ -22,6 +22,8 @@ object BookStoreApi {
     def path_delete(isbn: String) = s"/bookstore/delete/$isbn"
 
     val path_find_by_name = "/bookstore/find_by_name"
+
+    val path_find_by_include_name = "/bookstore/find_by_include_name"
 }
 
 @Singleton
@@ -52,6 +54,14 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
         request: Request =>
             val findName = request.params.getOrElse("name", "")
             val result = db.findByName(findName)
+            result
+    }
+
+    get(BookStoreApi.path_find_by_include_name) {
+        request: Request =>
+            val includeName = request.params.getOrElse("name", "")
+            info("query with include name: " + includeName)
+            val result = db.findByIncludeName(includeName)
             result
     }
 

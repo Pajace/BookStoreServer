@@ -17,5 +17,7 @@ trait BookDao {
 
     def findByName(name: String): List[Book]
 
+    def findByIncludeName(includeName: String): List[Book]
+
     def listAll(): List[Book]
 }
