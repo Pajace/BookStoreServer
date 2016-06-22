@@ -2,6 +2,7 @@ package com.logdown.mycodetub
 
 import java.net.{URL, URLEncoder}
 
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
@@ -11,6 +12,7 @@ import com.logdown.mycodetub.db.DbOperation
 import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
+import com.twitter.finatra.json.FinatraObjectMapper
 import com.twitter.inject.server.FeatureTest
 import org.scalamock.scalatest._
 
@@ -117,16 +119,54 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     "GET /bookstore/findByName" should {
         "return matched book list json string" in {
             val bookName = "7個習慣決定未來 : 柯維給年輕人的成長藍圖"
-            val expectedBook = new Book(isbn="9789863208112",
-                name=s"${bookName}",
-                author="柯維",
-                publishing="遠見天下文化出版",
-                version="第一版",
-                price=380)
-            val expectedJsonResult = "["+gson.toJson(expectedBook)+"]"
+            val expectedBook = new Book(isbn = "9789863208112",
+                name = s"${bookName}",
+                author = "柯維",
+                publishing = "遠見天下文化出版",
+                version = "第一版",
+                price = 380)
+            val expectedJsonResult = "[" + gson.toJson(expectedBook) + "]"
             val inputPath = (BookStoreApi.path_find_by_name + "?name=" + bookName).replace(" ", "%20")
 
             (stubBookDao.findByName _).when(bookName).returns(List[Book](expectedBook))
+
+            server.httpGetJson[List[Book]](
+                path = inputPath,
+                andExpect = Status.Ok,
+                withJsonBody = expectedJsonResult
+            )
+        }
+    }
+
+    "Get /bookstore/findByIncludeName" should {
+        "return matched book's json string list" in {
+            val searchString = "test"
+            val expectedList: List[Book] = List(
+                new Book(isbn = "9789862168219",
+                    name = "脈絡思考創新 = : 喚醒設計思維的3個原點",
+                    author = "蕭瑞麟",
+                    publishing = "天下遠見",
+                    version = "第一版",
+                    price = 350),
+                new Book(isbn = "9789862728956",
+                    name = "像工程師一樣思考",
+                    author = "馬德哈文 ; 陳雅莉",
+                    publishing = "商周出版",
+                    version = "初版",
+                    price = 300),
+                new Book(isbn = "9789866031793",
+                    name = "系統思考 : 克服盲點、面對複雜性、見樹又見林的整體思考",
+                    author = "麥道斯 ; 邱昭良",
+                    publishing = "經濟新潮社出版",
+                    version = "初版",
+                    price = 450)
+            )
+
+            (stubBookDao.findByIncludeName _).when(searchString).returns(expectedList)
+            val mapper = injector.instance[FinatraObjectMapper]
+            val expectedJsonResult = mapper.writeValueAsString(expectedList)
+
+            val inputPath = BookStoreApi.path_find_by_include_name + "?name=" + searchString
 
             server.httpGetJson[List[Book]](
                 path = inputPath,
