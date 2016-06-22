@@ -43,13 +43,6 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
             db.listAll()
     }
 
-    post(BookStoreApi.path_create) {
-        book: Book =>
-            val result = db.insertBook(book)
-            if (result) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
-            else response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultFailed)
-    }
-
     get(BookStoreApi.path_find_by_name) {
         request: Request =>
             val findName = request.params.getOrElse("name", "")
@@ -63,6 +56,13 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
             info("query with include name: " + includeName)
             val result = db.findByIncludeName(includeName)
             result
+    }
+
+    post(BookStoreApi.path_create) {
+        book: Book =>
+            val result = db.insertBook(book)
+            if (result) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
+            else response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultFailed)
     }
 
     put(BookStoreApi.path_update) {
