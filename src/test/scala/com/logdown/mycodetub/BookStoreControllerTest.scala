@@ -1,8 +1,5 @@
 package com.logdown.mycodetub
 
-import java.net.{URL, URLEncoder}
-
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
@@ -27,7 +24,12 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         stage = Stage.DEVELOPMENT,
         verbose = true)
 
-    val gson: Gson = new Gson()
+    implicit class ImproveToJson(any: Any) {
+        def toJsonStringByUsingJackson: String = {
+            val mapper = injector.instance[FinatraObjectMapper]
+            mapper.writeValueAsString(any)
+        }
+    }
 
     @Bind
     @MongoDbBookDao
@@ -97,7 +99,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
             )
 
             (stubBookDao.findByIsbn _).when(book.isbn).returns(Option(book))
-            val bookJson = gson.toJson(book, classOf[Book])
+            val bookJson = book.toJsonStringByUsingJackson
 
             // get data and assert
             server.httpGetJson[Book](
@@ -125,7 +127,8 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 publishing = "遠見天下文化出版",
                 version = "第一版",
                 price = 380)
-            val expectedJsonResult = "[" + gson.toJson(expectedBook) + "]"
+
+            val expectedJsonResult = List[Book](expectedBook).toJsonStringByUsingJackson
             val inputPath = (BookStoreApi.path_find_by_name + "?name=" + bookName).replace(" ", "%20")
 
             (stubBookDao.findByName _).when(bookName).returns(List[Book](expectedBook))
