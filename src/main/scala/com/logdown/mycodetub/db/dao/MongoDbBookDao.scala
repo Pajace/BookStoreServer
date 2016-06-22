@@ -79,7 +79,6 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
     }
 
     override def findByName(name: String): List[Book] = {
-        List[Book]()
         val findFuture = collection.find(Filters.eq("name", name))
             .projection(fields(excludeId())).toFuture()
 
@@ -91,17 +90,26 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
     private def createDocumentByJsonString(book: Book): Option[Document] = {
         if (book == null) None
         else
-        Option(Document(
-            "_id" -> book.isbn,
-            Book.Key_Isbn -> book.isbn,
-            Book.Key_Author -> book.author,
-            Book.Key_Name -> book.name,
-            Book.Key_Price -> book.price,
-            Book.Key_Publishing -> book.publishing,
-            Book.Key_Version -> book.version))
+            Option(Document(
+                "_id" -> book.isbn,
+                Book.Key_Isbn -> book.isbn,
+                Book.Key_Author -> book.author,
+                Book.Key_Name -> book.name,
+                Book.Key_Price -> book.price,
+                Book.Key_Publishing -> book.publishing,
+                Book.Key_Version -> book.version))
     }
 
     private def secondsDuration(seconds: Long): Duration = {
         Duration(seconds, TimeUnit.SECONDS)
+    }
+
+    override def findByIncludeName(includeName: String): List[Book] = {
+        List[Book]()
+        val findFuture = collection.find(Filters.regex("name", s""".*${includeName}.*"""))
+            .projection(fields(excludeId())).toFuture()
+        val result = Await.result(findFuture, secondsDuration(20))
+            .map(b => gson.fromJson(b.toJson(), classOf[Book]))
+        result.toList
     }
 }
