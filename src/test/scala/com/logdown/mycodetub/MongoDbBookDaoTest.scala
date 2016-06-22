@@ -250,6 +250,15 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         actualResult.map(expectedResult.contains(_))
     }
 
+    it should "return empty list, if no books is matched" in {
+        info("add 10 books into mongo db")
+        Add10BooksIntoMongoDbAndReturnBooksList().filter(_.name.contains("abcde"))
+
+        val actualResult = MongoDb.findByIncludeName("abcde")
+
+        actualResult.size should be(0)
+    }
+
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
         val bookList = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
         bookList.foreach(MongoDb.insertBook)
