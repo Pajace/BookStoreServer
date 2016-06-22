@@ -105,11 +105,19 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
     }
 
     override def findByIncludeName(includeName: String): List[Book] = {
-        List[Book]()
         val findFuture = collection.find(Filters.regex("name", s""".*${includeName}.*"""))
             .projection(fields(excludeId())).toFuture()
         val result = Await.result(findFuture, secondsDuration(20))
             .map(b => gson.fromJson(b.toJson(), classOf[Book]))
         result.toList
+    }
+
+    def insertManyBooks(books: List[Book]): Boolean = {
+        val documents = books.map(createDocumentByJsonString(_).get)
+
+        val insertManyFuture = collection.insertMany(documents).toFuture()
+        val insertResult = Await.result(insertManyFuture, secondsDuration(10)).head.toString().split(" ")
+
+        if (insertResult.contains("successfully")) true else false
     }
 }
