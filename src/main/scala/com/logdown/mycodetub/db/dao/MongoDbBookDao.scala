@@ -6,8 +6,6 @@ import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.MongoDbConnector
 import com.twitter.inject.Logging
-import org.bson.BsonInvalidOperationException
-import org.bson.json.JsonParseException
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.mongodb.scala.model.Filters
@@ -28,8 +26,8 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
 
     override def insertBook(book: Book): Boolean = {
 
-        val bookJsonString = gson.toJson(book)
-        val bookDocument = createDocumentByJsonString(bookJsonString).orNull
+
+        val bookDocument = createDocumentByJsonString(book).orNull
         if (bookDocument == null) return false
 
         val insertFuture = collection.insertOne(bookDocument).toFuture()
@@ -45,8 +43,7 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
     }
 
     override def updateBook(book: Book): Boolean = {
-        val value = gson.toJson(book)
-        val document: Document = createDocumentByJsonString(value).orNull
+        val document: Document = createDocumentByJsonString(book).orNull
         if (document == null) {
             error("updateBook: json parse failed.")
             return false
@@ -91,17 +88,17 @@ class MongoDbBookDao(collection: MongoCollection[Document] =
         allMatchedBooks.toList
     }
 
-    private def createDocumentByJsonString(jsonString: String): Option[Document] = {
-        try {
-            Option.apply(Document.apply(jsonString))
-        } catch {
-            case ex: JsonParseException =>
-                error("createDocumentByJsonString => " + ex.getMessage)
-                None
-            case ex: BsonInvalidOperationException =>
-                error("createDocumentByJsonString => " + ex.getMessage)
-                None
-        }
+    private def createDocumentByJsonString(book: Book): Option[Document] = {
+        if (book == null) None
+        else
+        Option(Document(
+            "_id" -> book.isbn,
+            Book.Key_Isbn -> book.isbn,
+            Book.Key_Author -> book.author,
+            Book.Key_Name -> book.name,
+            Book.Key_Price -> book.price,
+            Book.Key_Publishing -> book.publishing,
+            Book.Key_Version -> book.version))
     }
 
     private def secondsDuration(seconds: Long): Duration = {

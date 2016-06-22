@@ -16,6 +16,7 @@ case class Book(@NotEmpty isbn: String,
 
 object Book {
     val Key_Isbn = "isbn"
+    val Key_Name = "name"
     val Key_Author = "author"
     val Key_Publishing = "publishing"
     val Key_Version = "version"
