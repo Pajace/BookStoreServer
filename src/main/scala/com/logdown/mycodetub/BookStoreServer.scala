@@ -11,7 +11,7 @@ import com.twitter.finatra.http.routing.HttpRouter
   */
 
 object BookStoreServerMain extends BookStoreServer {
-    val DefaultMongoDBUrl = "10.8.33.30:27017"
+    val DefaultMongoDBUrl = "127.0.0.1:27017"
 }
 
 class BookStoreServer extends HttpServer {

@@ -9,6 +9,8 @@ trait BookDao {
 
     def insertBook(value: Book): Boolean
 
+    def insertManyBooks(books: List[Book]): Boolean
+
     def deleteBook(isbn: String): Boolean
 
     def updateBook(books: Book): Boolean

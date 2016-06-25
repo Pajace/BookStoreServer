@@ -6,6 +6,7 @@ import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db._
 import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import org.mongodb.scala.bson.collection.immutable.Document
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.concurrent.Await
@@ -136,7 +137,6 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         """.stripMargin
     )
 
-
     "insertBook" should "return true, after insert book success" in {
         val expectedBook: Book = new Book(
             isbn = "9789863791621",
@@ -156,7 +156,6 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
     it should "return false, if inserted book is null" in {
         MongoDb.insertBook(null) should be(false)
     }
-
 
     "updateBook" should "return true after update success" in {
         val book: Book = new Book(
@@ -259,9 +258,27 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
         actualResult.size should be(0)
     }
 
+    "insertManyBook" should "return true, after inserting book success" in {
+        val expectedResult = booksData.map(gson.fromJson(_, classOf[Book]))
+
+        val result = MongoDb.insertManyBooks(expectedResult)
+
+        result should be(true)
+    }
+
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
         val bookList = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
-        bookList.foreach(MongoDb.insertBook)
+        val insertFuture = TestCollection.insertMany(bookList.map((b: Book) => Document(
+            "_id" -> b.isbn,
+            Book.Key_Isbn -> b.isbn,
+            Book.Key_Name -> b.name,
+            Book.Key_Author -> b.author,
+            Book.Key_Publishing -> b.publishing,
+            Book.Key_Version -> b.version,
+            Book.Key_Price -> b.price
+        ))).toFuture()
+        Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ") should contain("successfully")
+
         bookList
     }
 }

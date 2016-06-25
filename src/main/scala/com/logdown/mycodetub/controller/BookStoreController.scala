@@ -24,6 +24,9 @@ object BookStoreApi {
     val path_find_by_name = "/bookstore/find_by_name"
 
     val path_find_by_include_name = "/bookstore/find_by_include_name"
+
+    val path_add_many = "/bookstore/addMany"
+
 }
 
 @Singleton
@@ -63,6 +66,17 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
             val result = db.insertBook(book)
             if (result) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
             else response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultFailed)
+    }
+
+    post(BookStoreApi.path_add_many) {
+        books: List[Book] =>
+            val result = db.insertManyBooks(books)
+            info(s"batch insert books result => ${result}")
+            val resultLocationList = books.map((b: Book) => BookStoreApi.path_get(b.isbn))
+            if (result)
+                response.created.body(resultLocationList)
+            else
+                response.serviceUnavailable.body("batch add failed")
     }
 
     put(BookStoreApi.path_update) {

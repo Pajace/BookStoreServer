@@ -1,5 +1,9 @@
 package com.logdown.mycodetub
 
+import java.net.URLEncoder
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.google.gson.Gson
 import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
@@ -25,11 +29,29 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         verbose = true)
 
     implicit class ImproveToJson(any: Any) {
+        //        lazy val mapper = injector.instance[FinatraObjectMapper]
+        val mapper = new ObjectMapper()
+        mapper.registerModule(DefaultScalaModule)
+
         def toJsonStringByUsingJackson: String = {
-            val mapper = injector.instance[FinatraObjectMapper]
             mapper.writeValueAsString(any)
         }
     }
+
+    implicit class ImproveToEncodeUrlString(text: String) {
+        def encodeToURLString = URLEncoder.encode(text, "UTF-8")
+    }
+
+    implicit class ImproveBookToUrlString(book: Book) {
+        def URLStringEncode = new Book(
+            isbn = book.isbn,
+            name = book.name.encodeToURLString,
+            author = book.author.encodeToURLString,
+            publishing = book.publishing.encodeToURLString,
+            version = book.version.encodeToURLString,
+            price = book.price)
+    }
+
 
     @Bind
     @MongoDbBookDao
@@ -205,6 +227,46 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
     }
 
+    "POST /bookstore/batchAdd" should {
+        "response created and response location list when request for batchAdd is made" in {
+            val bookList = getSampleBooksList
+            val expectedResponse = bookList.map(
+                (b: Book) => BookStoreApi.path_get(b.isbn)).toJsonStringByUsingJackson
+
+            (stubBookDao.insertManyBooks _).when(*).returns(true)
+
+            val postJsonString = bookList.map(_.URLStringEncode).toJsonStringByUsingJackson
+
+            server.httpPost(
+                path = BookStoreApi.path_add_many,
+                postBody = postJsonString,
+                andExpect = Status.Created,
+                withBody = expectedResponse
+            )
+        }
+
+        "response when request for batchAdd is failed" in {
+            (stubBookDao.insertManyBooks _).when(*).returns(false)
+
+            server.httpPost(
+                path = BookStoreApi.path_add_many,
+                postBody =
+                    """
+                      |[{
+                      |"isbn":"9789863476733",
+                      |"name":"Learning Agile",
+                      |"author":"Chen",
+                      |"publishing":"GTOP",
+                      |"version":"First edition",
+                      |"price":680.0
+                      |}]
+                    """.stripMargin,
+                andExpect = Status.ServiceUnavailable,
+                withBody = "batch add failed"
+            )
+        }
+    }
+
     "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
             (stubBookDao.updateBook _).when(*).returns(true)
@@ -272,5 +334,157 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 andExpect = Status.NotFound
             )
         }
+    }
+
+    private def SampleBooksListJsonString: String = {
+        """
+          |[
+          |{
+          |"isbn":"9789863476733",
+          |"name":"Agile學習手冊 : Scrum、XP、精實和看板方法",
+          |"author":"史泰馬恩 ; 葛林 ; 陳佳新",
+          |"publishing":"碁峰資訊",
+          |"version":"初版",
+          |"price":680.0
+          |},
+          |{
+          |"isbn":"9789862168219",
+          |"name":"脈絡思考創新 = : 喚醒設計思維的3個原點",
+          |"author":"蕭瑞麟",
+          |"publishing":"天下遠見",
+          |"version":"第一版",
+          |"price":350
+          |},
+          |{
+          |"isbn":"9789862729717",
+          |"name":"菁英力 : 職場素養進階課 = Professionalism",
+          |"author":"陳嫦芬",
+          |"publishing":"商周出版",
+          |"version":"初版",
+          |"price":420
+          |},
+          |{
+          |"isbn":"9789863208112",
+          |"name":"7個習慣決定未來 : 柯維給年輕人的成長藍圖",
+          |"author":"柯維",
+          |"publishing":"遠見天下文化出版",
+          |"version":"第一版",
+          |"price":380
+          |},
+          |{
+          |"isbn":"9789862728956",
+          |"name":"像工程師一樣思考",
+          |"author":"馬德哈文 ; 陳雅莉",
+          |"publishing":"商周出版",
+          |"version":"初版",
+          |"price":300
+          |},
+          |{
+          |"isbn":"9789866031793",
+          |"name":"系統思考 : 克服盲點、面對複雜性、見樹又見林的整體思考",
+          |"author":"麥道斯 ; 邱昭良",
+          |"publishing":"經濟新潮社出版",
+          |"version":"初版",
+          |"price":450
+          |},
+          |{
+          |"isbn":"9789863475385",
+          |"name":"JavaScript應用程式開發實務",
+          |"author":"艾里亞特 ; 楊仁和",
+          |"publishing":"碁峰資訊",
+          |"version":"初版",
+          |"price":480
+          |},
+          |{
+          |"isbn":"9789864340408",
+          |"name":"JavaScript設計模式與開發實踐",
+          |"author":"曾探",
+          |"publishing":"博碩文化",
+          |"version":"初版",
+          |"price":460
+          |},
+          |{
+          |"isbn":"9789863791621",
+          |"name":"奠定大數據的基石 : NoSQL資料庫技術",
+          |"author":"皮雄軍",
+          |"publishing":"佳魁資訊",
+          |"version":"初版",
+          |"price":560
+          |},
+          |{
+          |"isbn":"9862763833",
+          |"name":"團隊之美",
+          |"author":"史泰馬恩 ; 葛林 ; 鄭明輝",
+          |"publishing":"碁峰資訊",
+          |"version":"初版",
+          |"price":580
+          |}
+          |]
+        """.stripMargin
+    }
+
+    private def getSampleBooksList: List[Book] = {
+        List[Book](
+            Book(isbn = "9789863476733",
+                name = "Agile學習手冊 : Scrum、XP、精實和看板方法",
+                author = "史泰馬恩 ; 葛林 ; 陳佳新",
+                publishing = "碁峰資訊",
+                version = "初版",
+                price = 680.0),
+            Book(isbn = "9789862168219",
+                name = "脈絡思考創新 = : 喚醒設計思維的3個原點",
+                author = "蕭瑞麟",
+                publishing = "天下遠見",
+                version = "第一版",
+                price = 350),
+            Book(isbn = "9789862729717",
+                name = "菁英力 : 職場素養進階課 = Professionalism",
+                author = "陳嫦芬",
+                publishing = "商周出版",
+                version = "初版",
+                price = 420),
+            Book(isbn = "9789863208112",
+                name = "7個習慣決定未來 : 柯維給年輕人的成長藍圖",
+                author = "柯維",
+                publishing = "遠見天下文化出版",
+                version = "第一版",
+                price = 380),
+            Book(isbn = "9789862728956",
+                name = "像工程師一樣思考",
+                author = "馬德哈文 ; 陳雅莉",
+                publishing = "商周出版",
+                version = "初版",
+                price = 300),
+            Book(isbn = "9789866031793",
+                name = "系統思考 : 克服盲點、面對複雜性、見樹又見林的整體思考",
+                author = "麥道斯 ; 邱昭良",
+                publishing = "經濟新潮社出版",
+                version = "初版",
+                price = 450),
+            Book(isbn = "9789863475385",
+                name = "JavaScript應用程式開發實務",
+                author = "艾里亞特 ; 楊仁和",
+                publishing = "碁峰資訊",
+                version = "初版",
+                price = 480),
+            Book(isbn = "9789864340408",
+                name = "JavaScript設計模式與開發實踐",
+                author = "曾探",
+                publishing = "博碩文化",
+                version = "初版",
+                price = 460),
+            Book(isbn = "9789863791621",
+                name = "奠定大數據的基石 : NoSQL資料庫技術",
+                author = "皮雄軍",
+                publishing = "佳魁資訊",
+                version = "初版",
+                price = 560),
+            Book(isbn = "9862763833",
+                name = "團隊之美",
+                author = "史泰馬恩 ; 葛林 ; 鄭明輝",
+                publishing = "	碁峰資訊",
+                version = "初版",
+                price = 580)
+        )
     }
 }
