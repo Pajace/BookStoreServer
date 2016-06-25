@@ -1,5 +1,7 @@
 package com.logdown.mycodetub
 
+import java.net.URLEncoder
+
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.google.gson.Gson
@@ -34,6 +36,20 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         def toJsonStringByUsingJackson: String = {
             mapper.writeValueAsString(any)
         }
+    }
+
+    implicit class ImproveToEncodeUrlString(text: String) {
+        def encodeToURLString = URLEncoder.encode(text, "UTF-8")
+    }
+
+    implicit class ImproveBookToUrlString(book: Book) {
+        def URLStringEncode = new Book(
+            isbn = book.isbn,
+            name = book.name.encodeToURLString,
+            author = book.author.encodeToURLString,
+            publishing = book.publishing.encodeToURLString,
+            version = book.version.encodeToURLString,
+            price = book.price)
     }
 
 
@@ -219,11 +235,34 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
             (stubBookDao.insertManyBooks _).when(*).returns(true)
 
+            val postJsonString = bookList.map(_.URLStringEncode).toJsonStringByUsingJackson
+
             server.httpPost(
                 path = BookStoreApi.path_add_many,
-                postBody = SampleBooksListJsonString,
+                postBody = postJsonString,
                 andExpect = Status.Created,
                 withBody = expectedResponse
+            )
+        }
+
+        "response when request for batchAdd is failed" in {
+            (stubBookDao.insertManyBooks _).when(*).returns(false)
+
+            server.httpPost(
+                path = BookStoreApi.path_add_many,
+                postBody =
+                    """
+                      |[{
+                      |"isbn":"9789863476733",
+                      |"name":"Learning Agile",
+                      |"author":"Chen",
+                      |"publishing":"GTOP",
+                      |"version":"First edition",
+                      |"price":680.0
+                      |}]
+                    """.stripMargin,
+                andExpect = Status.ServiceUnavailable,
+                withBody = "batch add failed"
             )
         }
     }

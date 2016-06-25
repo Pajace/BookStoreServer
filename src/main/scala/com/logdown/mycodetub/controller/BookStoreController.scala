@@ -69,12 +69,14 @@ class BookStoreController @Inject()(db: BookDao) extends Controller {
     }
 
     post(BookStoreApi.path_add_many) {
-        books: Seq[Book] =>
-            val result = db.insertManyBooks(books.toList)
-            books.map((b: Book) => println(b.name))
+        books: List[Book] =>
+            val result = db.insertManyBooks(books)
+            info(s"batch insert books result => ${result}")
             val resultLocationList = books.map((b: Book) => BookStoreApi.path_get(b.isbn))
             if (result)
                 response.created.body(resultLocationList)
+            else
+                response.serviceUnavailable.body("batch add failed")
     }
 
     put(BookStoreApi.path_update) {
