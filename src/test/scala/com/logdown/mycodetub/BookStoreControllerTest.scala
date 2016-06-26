@@ -10,18 +10,18 @@ import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.DbOperation
-import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.dao.BookDao
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.finatra.json.FinatraObjectMapper
+import com.twitter.inject.Mockito
 import com.twitter.inject.server.FeatureTest
-import org.scalamock.scalatest._
 
 
 /**
   * Created by pajace_chen on 2016/6/6.
   */
-class BookStoreControllerTest extends FeatureTest with MockFactory {
+class BookStoreControllerTest extends FeatureTest with Mockito {
 
     override val server = new EmbeddedHttpServer(
         twitterServer = new BookStoreServer,
@@ -53,9 +53,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     }
 
 
-    @Bind
-    @MongoDbBookDao
-    val stubBookDao = stub[BookDao]
+    @Bind val stubBookDao = smartMock[BookDao]
 
     "GET /bookstore/list" should {
         "return json string of book's list" in {
@@ -99,7 +97,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 gson.fromJson(book2, classOf[Book]),
                 gson.fromJson(book3, classOf[Book]))
 
-            (stubBookDao.listAll _).when().returns(expectedResult)
+            stubBookDao.listAll().returns(expectedResult)
 
             server.httpGetJson[List[Book]](
                 path = BookStoreApi.path_list,
@@ -120,7 +118,8 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                 price = 480
             )
 
-            (stubBookDao.findByIsbn _).when(book.isbn).returns(Option(book))
+            //            (stubBookDao.findByIsbn _).when(book.isbn).returns(Option(book))
+            stubBookDao.findByIsbn(book.isbn) returns Option(book)
             val bookJson = book.toJsonStringByUsingJackson
 
             // get data and assert
@@ -132,7 +131,8 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
         "response NotFound, if book's isbn of request is not exist" in {
             val notFoundIsbn = "1234567890123"
-            (stubBookDao.findByIsbn _).when(notFoundIsbn).returns(None)
+
+            stubBookDao findByIsbn (notFoundIsbn) returns None
 
             server.httpGet(
                 path = BookStoreApi.path_get(notFoundIsbn),
@@ -153,7 +153,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
             val expectedJsonResult = List[Book](expectedBook).toJsonStringByUsingJackson
             val inputPath = (BookStoreApi.path_find_by_name + "?name=" + bookName).replace(" ", "%20")
 
-            (stubBookDao.findByName _).when(bookName).returns(List[Book](expectedBook))
+            stubBookDao.findByName(bookName) returns List[Book](expectedBook)
 
             server.httpGetJson[List[Book]](
                 path = inputPath,
@@ -187,7 +187,8 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
                     price = 450)
             )
 
-            (stubBookDao.findByIncludeName _).when(searchString).returns(expectedList)
+            stubBookDao.findByIncludeName(searchString) returns expectedList
+
             val mapper = injector.instance[FinatraObjectMapper]
             val expectedJsonResult = mapper.writeValueAsString(expectedList)
 
@@ -204,7 +205,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
     "POST /bookstore/add" should {
         "response created and GET location when request for add is made" in {
 
-            (stubBookDao.insertBook _).when(*).returns(true)
+            stubBookDao.insertBook(any[Book]) returns true
 
             val expectedIsbn = "9787512387744"
             server.httpPost(
@@ -233,7 +234,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
             val expectedResponse = bookList.map(
                 (b: Book) => BookStoreApi.path_get(b.isbn)).toJsonStringByUsingJackson
 
-            (stubBookDao.insertManyBooks _).when(*).returns(true)
+            stubBookDao.insertManyBooks(any[List[Book]]) returns true
 
             val postJsonString = bookList.map(_.URLStringEncode).toJsonStringByUsingJackson
 
@@ -246,7 +247,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
 
         "response when request for batchAdd is failed" in {
-            (stubBookDao.insertManyBooks _).when(*).returns(false)
+            stubBookDao.insertManyBooks(any[List[Book]]) returns false
 
             server.httpPost(
                 path = BookStoreApi.path_add_many,
@@ -269,7 +270,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
     "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
-            (stubBookDao.updateBook _).when(*).returns(true)
+            stubBookDao.updateBook(any[Book]) returns true
 
             // update data
             server.httpPut(
@@ -291,7 +292,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         }
 
         "response NotFound, if there is not exist book for update" in {
-            (stubBookDao.updateBook _).when(*).returns(false)
+            stubBookDao.updateBook(any[Book]) returns false
 
             // update data
             server.httpPut(
@@ -317,7 +318,7 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
         "response Accepted and Delete_Success when DELETE is success" in {
             val expectedIsbn = "1234567890000"
 
-            (stubBookDao.deleteBook _).when(expectedIsbn).returns(true)
+            stubBookDao.deleteBook(anyString) returns true
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
@@ -327,7 +328,8 @@ class BookStoreControllerTest extends FeatureTest with MockFactory {
 
         "response \"NotFound\", when delete key isn't exist" in {
             val notExistKey = "1111111111111"
-            (stubBookDao.deleteBook _).when(notExistKey).returns(false)
+
+            stubBookDao.deleteBook(anyString) returns false
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(notExistKey),
