@@ -67,8 +67,8 @@ libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mo
 //libraryDependencies += "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
 
 // https://github.com/spray/spray-json
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
-libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2" % "test"
+//libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
+//libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2" % "test"
 
-libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.8.2" % "test"
+//libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.8.2" % "test"
 //libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.8.2" % "test"

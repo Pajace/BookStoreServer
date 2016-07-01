@@ -5,8 +5,6 @@ import java.util.concurrent.TimeUnit
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.dao.MongoDbBookDao
-import com.whisk.docker.scalatest.DockerTestKit
-import docker.it.DockerMongodbService
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
@@ -18,9 +16,7 @@ import scala.concurrent.duration.Duration
   * Created by pajace_chen on 2016/6/14.
   */
 class MongoDbBookDaoTest extends FlatSpec
-    with Matchers with BeforeAndAfterEach with BeforeAndAfterAll
-    with DockerTestKit with DockerMongodbService {
-
+    with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
     val EMPTY_STRING = ""
     val gson: Gson = new Gson
 
@@ -30,8 +26,6 @@ class MongoDbBookDaoTest extends FlatSpec
 
     override def beforeAll(): Unit = {
         super.beforeAll()
-        dockerContainers.map(_.image).foreach(println)
-        dockerContainers.forall(_.isReady().futureValue) shouldBe true
 
         mongoClient = MongoClient("mongodb://127.0.0.1")
         val database = mongoClient.getDatabase("integration_test_database")
