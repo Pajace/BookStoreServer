@@ -20,9 +20,9 @@ class MongoDbBookDaoTest extends FlatSpec
     val EMPTY_STRING = ""
     val gson: Gson = new Gson
 
-    var mongoClient: MongoClient = null;
-    var MongoDb: MongoDbBookDao = null;
-    var dbCollection: MongoCollection[Document] = null;
+    var mongoClient: MongoClient = null
+    var MongoDb: MongoDbBookDao = null
+    var dbCollection: MongoCollection[Document] = null
 
     override def beforeAll(): Unit = {
         super.beforeAll()

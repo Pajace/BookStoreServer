@@ -6,13 +6,12 @@ import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.CommonFilters
 import com.twitter.finatra.http.routing.HttpRouter
 
+
 /**
   * Created by Pajace on 2016/6/5.
   */
 
-object BookStoreServerMain extends BookStoreServer {
-    val DefaultMongoDBUrl = "127.0.0.1:27017"
-}
+object BookStoreServerMain extends BookStoreServer
 
 class BookStoreServer extends HttpServer {
 
@@ -24,4 +23,6 @@ class BookStoreServer extends HttpServer {
             .add[WelcomeBookStoreController]
             .add[BookStoreController]
     }
+
+
 }

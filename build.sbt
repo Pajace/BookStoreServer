@@ -52,9 +52,6 @@ libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"
 // http://mvnrepository.com/artifact/com.google.code.gson/gson
 libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 
-// http://scalamock.org/quick-start/
-//libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2.2" % "test"
-
 // MongoDB Scala Driver
 // http://mongodb.github.io/mongo-scala-driver/1.0/getting-started/installation-guide/
 // http://mvnrepository.com/artifact/org.mongodb.scala/mongo-scala-driver_2.11
@@ -63,12 +60,15 @@ libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mo
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mongo_driver % "test"
 
 
-// https://github.com/SimplyScala/scalatest-embedmongo
-//libraryDependencies += "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
+// typesafe config for scala wrapper: config-annotation
+// ----------------------------------------------------
+libraryDependencies += "com.wacai" %% "config-annotation" % "0.3.1"
 
-// https://github.com/spray/spray-json
-//libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
-//libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2" % "test"
+libraryDependencies += "com.wacai" %% "config-annotation" % "0.3.1" % "test"
 
-//libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.8.2" % "test"
-//libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.8.2" % "test"
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+
+scalacOptions += s"-Xmacro-settings:conf.output.dir=${baseDirectory.value / "conf"}"
+
+unmanagedClasspath in Runtime += baseDirectory.value / "conf"
+// ----------------------------------------------------
