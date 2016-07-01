@@ -5,7 +5,7 @@ version := "1.0"
 scalaVersion := "2.11.8"
 
 lazy val versions = new {
-    val finatra = "2.1.2"
+    val finatra = "2.1.6"
     val logback = "1.1.3"
     val guice = "4.0"
     val specs2 = "2.3.12"
@@ -53,7 +53,7 @@ libraryDependencies += "org.specs2" %% "specs2" % versions.specs2 % "test"
 libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 
 // http://scalamock.org/quick-start/
-libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2.2" % "test"
+//libraryDependencies += "org.scalamock" %% "scalamock-scalatest-support" % "3.2.2" % "test"
 
 // MongoDB Scala Driver
 // http://mongodb.github.io/mongo-scala-driver/1.0/getting-started/installation-guide/
@@ -64,8 +64,11 @@ libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mo
 
 
 // https://github.com/SimplyScala/scalatest-embedmongo
-libraryDependencies += "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
+//libraryDependencies += "com.github.simplyscala" %% "scalatest-embedmongo" % "0.2.2" % "test"
 
 // https://github.com/spray/spray-json
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
 libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2" % "test"
+
+libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.8.2" % "test"
+//libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.8.2" % "test"

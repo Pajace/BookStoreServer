@@ -4,10 +4,12 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db._
-import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.dao.MongoDbBookDao
+import com.whisk.docker.scalatest.DockerTestKit
+import docker.it.DockerMongodbService
+import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -15,23 +17,44 @@ import scala.concurrent.duration.Duration
 /**
   * Created by pajace_chen on 2016/6/14.
   */
-class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach {
+class MongoDbBookDaoTest extends FlatSpec
+    with Matchers with BeforeAndAfterEach with BeforeAndAfterAll
+    with DockerTestKit with DockerMongodbService {
 
-    val TestCollection = MongoDbConnector.fetchCollection("test")
-    val MongoDb: MongoDbBookDao = new MongoDbBookDao(TestCollection)
-    val EmptyString = ""
+    val EMPTY_STRING = ""
     val gson: Gson = new Gson
+
+    var mongoClient: MongoClient = null;
+    var MongoDb: MongoDbBookDao = null;
+    var dbCollection: MongoCollection[Document] = null;
+
+    override def beforeAll(): Unit = {
+        super.beforeAll()
+        dockerContainers.map(_.image).foreach(println)
+        dockerContainers.forall(_.isReady().futureValue) shouldBe true
+
+        mongoClient = MongoClient("mongodb://127.0.0.1")
+        val database = mongoClient.getDatabase("integration_test_database")
+        dbCollection = database.getCollection[Document]("booksTestCollection")
+
+        MongoDb = new MongoDbBookDao(dbCollection)
+    }
 
     override protected def beforeEach(): Unit = {
         super.beforeEach()
-        val dropFuture = TestCollection.drop().toFuture()
+        val dropFuture = dbCollection.drop().toFuture()
         Await.result(dropFuture, Duration(10, TimeUnit.SECONDS))
     }
 
     override protected def afterEach(): Unit = {
         super.beforeEach()
-        val dropFuture = TestCollection.drop().toFuture()
+        val dropFuture = dbCollection.drop().toFuture()
         Await.result(dropFuture, Duration(10, TimeUnit.SECONDS))
+    }
+
+    override def afterAll(): Unit = {
+        super.afterAll()
+        mongoClient.close()
     }
 
     val booksData = List(
@@ -268,7 +291,7 @@ class MongoDbBookDaoTest extends FlatSpec with Matchers with BeforeAndAfterEach 
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {
         val bookList = booksData.map((b: String) => gson.fromJson(b, classOf[Book]))
-        val insertFuture = TestCollection.insertMany(bookList.map((b: Book) => Document(
+        val insertFuture = dbCollection.insertMany(bookList.map((b: Book) => Document(
             "_id" -> b.isbn,
             Book.Key_Isbn -> b.isbn,
             Book.Key_Name -> b.name,
