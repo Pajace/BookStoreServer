@@ -13,7 +13,7 @@ trait MongodbOperation {
 
     def deleteBook(isbn: String): Either[Throwable, String]
 
-    def updateBook(books: Book): Boolean
+    def updateBook(books: Book): Either[Throwable, String]
 
     def findByIsbn(isbn: String): Option[Book]
 

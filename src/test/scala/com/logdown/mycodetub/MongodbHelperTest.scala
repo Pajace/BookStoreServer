@@ -175,7 +175,7 @@ class MongodbHelperTest extends FlatSpec
         MongoDb.insertBook(null).isLeft shouldBe true
     }
 
-    "updateBook" should "return true after update success" in {
+    "updateBook" should "return Right after update success" in {
         val book: Book = new Book(
             isbn = "9789863791621",
             name = "奠定大數據的基石 : NoSQL資料庫技術",
@@ -198,19 +198,19 @@ class MongodbHelperTest extends FlatSpec
         val updateResult = MongoDb.updateBook(updatedBook)
         MongoDb.findByIsbn(book.isbn).get should be(updatedBook)
 
-        updateResult should be(true)
+        updateResult.isRight shouldBe true
     }
 
-    it should "return false after no data for update" in {
+    it should "return Left after no data for update" in {
         val noThisBookInDb = new Book("1234567890123", "", "", "", "", 0)
         val updateResult = MongoDb.updateBook(noThisBookInDb)
 
-        updateResult should be(false)
+        updateResult.isLeft shouldBe true
     }
 
-    it should "return false if books is null" in {
+    it should "return Left if books is null" in {
         val updateResult = MongoDb.updateBook(null)
-        updateResult should be(false)
+        updateResult.isLeft shouldBe true
     }
 
     "deleteData" should "return Right after delete success" in {

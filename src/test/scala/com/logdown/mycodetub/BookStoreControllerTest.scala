@@ -269,7 +269,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
 
     "PUT /bookstore/update" should {
         "response Accepted and GET path after book's information is updated" in {
-            stubBookDao.updateBook(any[Book]) returns true
+            stubBookDao.updateBook(any[Book]) returns Right("")
 
             // update data
             server.httpPut(
@@ -291,7 +291,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
         }
 
         "response NotFound, if there is not exist book for update" in {
-            stubBookDao.updateBook(any[Book]) returns false
+            stubBookDao.updateBook(any[Book]) returns Left(new RuntimeException)
 
             // update data
             server.httpPut(

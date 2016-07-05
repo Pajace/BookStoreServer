@@ -48,19 +48,19 @@ class MongodbHelper(collection: MongoCollection[Document] =
         }
     }
 
-    override def updateBook(book: Book): Boolean = {
-        val document: Document = createDocumentByJsonString(book).orNull
-        if (document == null) {
-            error("updateBook: json parse failed.")
-            return false
-        }
+    override def updateBook(book: Book): Either[Throwable, String] = {
+        try {
+            val document: Document = createDocumentByJsonString(book).orNull
 
-        val update = collection.replaceOne(Filters.eq("isbn", book.isbn), document)
+            val update = collection.replaceOne(Filters.eq("isbn", book.isbn), document)
 
-        val updateResult = Await.result(update.head(), Duration(10, TimeUnit.SECONDS))
-        (updateResult.getMatchedCount, updateResult.getModifiedCount) match {
-            case (1, 1) => true
-            case _ => false
+            val updateResult = Await.result(update.head(), Duration(10, TimeUnit.SECONDS))
+            (updateResult.getMatchedCount, updateResult.getModifiedCount) match {
+                case (1, 1) => Right(updateResult.toString)
+                case _ => Left(new RuntimeException(updateResult.toString))
+            }
+        } catch {
+            case exception:Exception => Left(exception)
         }
     }
 

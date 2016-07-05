@@ -79,7 +79,8 @@ class BookStoreController @Inject()(db: MongodbOperation) extends Controller {
 
     put(BookStoreApi.path_update) {
         book: Book =>
-            if (db.updateBook(book))
+            val updateResult = db.updateBook(book)
+            if (updateResult.isRight)
                 response.accepted.location(s"/bookstore/${book.isbn}")
             else
                 response.notFound.body(s"${book.isbn} not found")
