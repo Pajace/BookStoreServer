@@ -5,7 +5,7 @@ import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.dao.{MongodbOperation, MongodbHelper}
+import com.logdown.mycodetub.db.{MongodbHelper, MongodbOperation}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.Mockito

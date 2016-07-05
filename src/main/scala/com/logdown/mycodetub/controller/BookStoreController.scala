@@ -2,8 +2,7 @@ package com.logdown.mycodetub.controller
 
 import com.google.inject.{Inject, Singleton}
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.DbOperation
-import com.logdown.mycodetub.db.dao.MongodbOperation
+import com.logdown.mycodetub.db.{DbOperation, MongodbOperation}
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 

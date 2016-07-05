@@ -1,10 +1,9 @@
-package com.logdown.mycodetub.db.dao
+package com.logdown.mycodetub.db
 
 import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.MongoDbConnector
 import com.twitter.inject.Logging
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document

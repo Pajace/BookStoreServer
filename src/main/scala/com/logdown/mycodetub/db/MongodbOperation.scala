@@ -1,4 +1,4 @@
-package com.logdown.mycodetub.db.dao
+package com.logdown.mycodetub.db
 
 import com.logdown.mycodetub.data.Book
 

@@ -4,7 +4,8 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.dao.MongodbHelper
+import com.logdown.mycodetub.db.MongoDbConnector._
+import com.logdown.mycodetub.db.MongodbHelper
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
@@ -27,7 +28,7 @@ class MongodbHelperTest extends FlatSpec
     override def beforeAll(): Unit = {
         super.beforeAll()
 
-        mongoClient = MongoClient("mongodb://127.0.0.1")
+        mongoClient = MongoClient(s"mongodb://${mongodb.hostAddress}:${mongodb.hostPort}")
         val database = mongoClient.getDatabase("integration_test_database")
         dbCollection = database.getCollection[Document]("booksTestCollection")
 
