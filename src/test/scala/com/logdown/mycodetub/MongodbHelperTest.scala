@@ -281,7 +281,7 @@ class MongodbHelperTest extends FlatSpec
 
         val result = MongoDb.insertManyBooks(expectedResult)
 
-        result should be(true)
+        result.isRight shouldBe true
     }
 
     private def Add10BooksIntoMongoDbAndReturnBooksList() = {

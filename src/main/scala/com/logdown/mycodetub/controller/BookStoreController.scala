@@ -70,9 +70,8 @@ class BookStoreController @Inject()(db: MongodbOperation) extends Controller {
     post(BookStoreApi.path_add_many) {
         books: List[Book] =>
             val result = db.insertManyBooks(books)
-            info(s"batch insert books result => ${result}")
             val resultLocationList = books.map((b: Book) => BookStoreApi.path_get(b.isbn))
-            if (result)
+            if (result.isRight)
                 response.created.body(resultLocationList)
             else
                 response.serviceUnavailable.body("batch add failed")

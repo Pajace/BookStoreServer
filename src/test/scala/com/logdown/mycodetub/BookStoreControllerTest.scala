@@ -233,7 +233,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
             val expectedResponse = bookList.map(
                 (b: Book) => BookStoreApi.path_get(b.isbn)).toJsonStringByUsingJackson
 
-            stubBookDao.insertManyBooks(any[List[Book]]) returns true
+            stubBookDao.insertManyBooks(any[List[Book]]) returns Right("successfully")
 
             val postJsonString = bookList.map(_.URLStringEncode).toJsonStringByUsingJackson
 
@@ -246,7 +246,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
         }
 
         "response when request for batchAdd is failed" in {
-            stubBookDao.insertManyBooks(any[List[Book]]) returns false
+            stubBookDao.insertManyBooks(any[List[Book]]) returns Left(new Exception)
 
             server.httpPost(
                 path = BookStoreApi.path_add_many,

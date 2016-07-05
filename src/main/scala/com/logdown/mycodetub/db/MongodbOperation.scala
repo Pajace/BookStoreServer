@@ -9,7 +9,7 @@ trait MongodbOperation {
 
     def insertBook(value: Book): Either[Throwable, String]
 
-    def insertManyBooks(books: List[Book]): Boolean
+    def insertManyBooks(books: List[Book]): Either[Throwable, String]
 
     def deleteBook(isbn: String): Boolean
 

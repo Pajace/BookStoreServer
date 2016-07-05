@@ -113,12 +113,17 @@ class MongodbHelper(collection: MongoCollection[Document] =
         result.toList
     }
 
-    override def insertManyBooks(books: List[Book]): Boolean = {
-        val documents = books.map(createDocumentByJsonString(_).get)
+    override def insertManyBooks(books: List[Book]): Either[Throwable, String] = {
+        try {
+            val documents = books.map(createDocumentByJsonString(_).get)
 
-        val insertManyFuture = collection.insertMany(documents).toFuture()
-        val insertResult = Await.result(insertManyFuture, secondsDuration(10)).head.toString().split(" ")
+            val insertManyFuture = collection.insertMany(documents).toFuture()
+            val insertResult = Await.result(insertManyFuture, secondsDuration(10)).head.toString().split(" ")
 
-        if (insertResult.contains("successfully")) true else false
+            if (insertResult.contains("successfully")) Right(insertResult.mkString(" ").toString)
+            else Left(new RuntimeException(insertResult.mkString(" ")))
+        } catch {
+            case exception: Exception => Left(exception)
+        }
     }
 }
