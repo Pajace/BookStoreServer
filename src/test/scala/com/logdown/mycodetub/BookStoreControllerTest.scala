@@ -10,7 +10,7 @@ import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.DbOperation
-import com.logdown.mycodetub.db.dao.BookDao
+import com.logdown.mycodetub.db.dao.MongodbOperation
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.finatra.json.FinatraObjectMapper
@@ -53,7 +53,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
     }
 
 
-    @Bind val stubBookDao = smartMock[BookDao]
+    @Bind val stubBookDao = smartMock[MongodbOperation]
 
     "GET /bookstore/list" should {
         "return json string of book's list" in {

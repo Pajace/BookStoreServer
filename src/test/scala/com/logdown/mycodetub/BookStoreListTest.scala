@@ -5,7 +5,7 @@ import com.google.inject.Stage
 import com.google.inject.testing.fieldbinder.Bind
 import com.logdown.mycodetub.controller.BookStoreApi
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.dao.{BookDao, MongoDbBookDao}
+import com.logdown.mycodetub.db.dao.{MongodbOperation, MongodbHelper}
 import com.twitter.finagle.http.Status
 import com.twitter.finatra.http.test.EmbeddedHttpServer
 import com.twitter.inject.Mockito
@@ -22,8 +22,8 @@ class BookStoreListTest extends FeatureTest with Mockito {
         verbose = true)
 
     @Bind
-    @MongoDbBookDao
-    val memoryDatabase = mock[BookDao]
+    @MongodbHelper
+    val memoryDatabase = mock[MongodbOperation]
 
     "GET" should {
         s"list all books information when GET ${BookStoreApi.path_list} request is made" in {

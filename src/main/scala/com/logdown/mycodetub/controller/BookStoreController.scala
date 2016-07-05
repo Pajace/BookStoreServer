@@ -3,7 +3,7 @@ package com.logdown.mycodetub.controller
 import com.google.inject.{Inject, Singleton}
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.DbOperation
-import com.logdown.mycodetub.db.dao.BookDao
+import com.logdown.mycodetub.db.dao.MongodbOperation
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 
@@ -11,7 +11,7 @@ import com.twitter.finatra.http.Controller
   * Created by pajace_chen on 2016/6/6.
   */
 object BookStoreApi {
-    def path_create = "/bookstore/add"
+    val path_create = "/bookstore/add"
 
     def path_get(isbn: String) = s"/bookstore/$isbn"
 
@@ -30,7 +30,7 @@ object BookStoreApi {
 }
 
 @Singleton
-class BookStoreController @Inject()(db: BookDao) extends Controller {
+class BookStoreController @Inject()(db: MongodbOperation) extends Controller {
 
     get(BookStoreApi.path_get(":isbn")) {
         request: Request =>

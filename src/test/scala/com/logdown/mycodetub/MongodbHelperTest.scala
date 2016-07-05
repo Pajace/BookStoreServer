@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
-import com.logdown.mycodetub.db.dao.MongoDbBookDao
+import com.logdown.mycodetub.db.dao.MongodbHelper
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
@@ -15,13 +15,13 @@ import scala.concurrent.duration.Duration
 /**
   * Created by pajace_chen on 2016/6/14.
   */
-class MongoDbBookDaoTest extends FlatSpec
+class MongodbHelperTest extends FlatSpec
     with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
     val EMPTY_STRING = ""
     val gson: Gson = new Gson
 
     var mongoClient: MongoClient = null
-    var MongoDb: MongoDbBookDao = null
+    var MongoDb: MongodbHelper = null
     var dbCollection: MongoCollection[Document] = null
 
     override def beforeAll(): Unit = {
@@ -31,7 +31,7 @@ class MongoDbBookDaoTest extends FlatSpec
         val database = mongoClient.getDatabase("integration_test_database")
         dbCollection = database.getCollection[Document]("booksTestCollection")
 
-        MongoDb = new MongoDbBookDao(dbCollection)
+        MongoDb = new MongodbHelper(dbCollection)
     }
 
     override protected def beforeEach(): Unit = {

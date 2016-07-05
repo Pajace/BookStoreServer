@@ -18,15 +18,13 @@ import scala.concurrent.{Await, Future}
 /**
   * Created by pajace_chen on 2016/6/13.
   */
-class MongoDbBookDao(collection: MongoCollection[Document] =
+class MongodbHelper(collection: MongoCollection[Document] =
                      MongoDbConnector.fetchCollection("books")
-                    ) extends Logging with BookDao {
+                    ) extends Logging with MongodbOperation {
 
     val gson: Gson = new Gson
 
     override def insertBook(book: Book): Boolean = {
-
-
         val bookDocument = createDocumentByJsonString(book).orNull
         if (bookDocument == null) return false
 
