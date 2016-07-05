@@ -63,7 +63,7 @@ class BookStoreController @Inject()(db: MongodbOperation) extends Controller {
     post(BookStoreApi.path_create) {
         book: Book =>
             val result = db.insertBook(book)
-            if (result) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
+            if (result.isRight) response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultSuccess)
             else response.created.location(s"/bookstore/${book.isbn}").body(DbOperation.ResultFailed)
     }
 

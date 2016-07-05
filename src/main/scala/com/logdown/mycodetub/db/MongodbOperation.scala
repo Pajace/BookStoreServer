@@ -7,7 +7,7 @@ import com.logdown.mycodetub.data.Book
   */
 trait MongodbOperation {
 
-    def insertBook(value: Book): Boolean
+    def insertBook(value: Book): Either[Throwable, String]
 
     def insertManyBooks(books: List[Book]): Boolean
 

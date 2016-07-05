@@ -18,19 +18,23 @@ import scala.concurrent.{Await, Future}
   * Created by pajace_chen on 2016/6/13.
   */
 class MongodbHelper(collection: MongoCollection[Document] =
-                     MongoDbConnector.fetchCollection("books")
-                    ) extends Logging with MongodbOperation {
+                    MongoDbConnector.fetchCollection("books")
+                   ) extends Logging with MongodbOperation {
 
     val gson: Gson = new Gson
 
-    override def insertBook(book: Book): Boolean = {
-        val bookDocument = createDocumentByJsonString(book).orNull
-        if (bookDocument == null) return false
+    override def insertBook(book: Book): Either[Throwable, String] = {
+        try {
+            val bookDocument = createDocumentByJsonString(book).orNull
 
-        val insertFuture = collection.insertOne(bookDocument).toFuture()
+            val insertFuture = collection.insertOne(bookDocument).toFuture()
 
-        val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
-        if (addResult.contains("successfully")) true else false
+            val addResult = Await.result(insertFuture, Duration(10, TimeUnit.SECONDS)).head.toString().split(" ")
+            if (addResult.contains("successfully")) Right("successfully")
+            else Left(new RuntimeException())
+        } catch {
+            case exception: Exception => Left(exception)
+        }
     }
 
     override def deleteBook(isbn: String): Boolean = {

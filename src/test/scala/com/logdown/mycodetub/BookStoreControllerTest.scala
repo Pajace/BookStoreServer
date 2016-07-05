@@ -204,7 +204,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
     "POST /bookstore/add" should {
         "response created and GET location when request for add is made" in {
 
-            stubBookDao.insertBook(any[Book]) returns true
+            stubBookDao.insertBook(any[Book]) returns Right("Successfully")
 
             val expectedIsbn = "9787512387744"
             server.httpPost(
