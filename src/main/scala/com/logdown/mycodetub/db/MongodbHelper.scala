@@ -37,10 +37,15 @@ class MongodbHelper(collection: MongoCollection[Document] =
         }
     }
 
-    override def deleteBook(isbn: String): Boolean = {
-        val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
-        val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
-        if (deleteResult.head.getDeletedCount == 1) true else false
+    override def deleteBook(isbn: String): Either[Throwable, String] = {
+        try {
+            val deleteOne = collection.deleteOne(Filters.eq("isbn", isbn))
+            val deleteResult = Await.result(deleteOne.toFuture(), Duration(10, TimeUnit.SECONDS))
+            if (deleteResult.head.getDeletedCount == 1) Right(deleteResult.head.toString)
+            else Left(new RuntimeException(deleteResult.toString()))
+        } catch {
+            case exception: Exception => Left(exception)
+        }
     }
 
     override def updateBook(book: Book): Boolean = {

@@ -11,7 +11,7 @@ trait MongodbOperation {
 
     def insertManyBooks(books: List[Book]): Either[Throwable, String]
 
-    def deleteBook(isbn: String): Boolean
+    def deleteBook(isbn: String): Either[Throwable, String]
 
     def updateBook(books: Book): Boolean
 

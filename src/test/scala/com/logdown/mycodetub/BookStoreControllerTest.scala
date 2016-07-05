@@ -317,7 +317,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
         "response Accepted and Delete_Success when DELETE is success" in {
             val expectedIsbn = "1234567890000"
 
-            stubBookDao.deleteBook(anyString) returns true
+            stubBookDao.deleteBook(anyString) returns Right("")
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(expectedIsbn),
@@ -328,7 +328,7 @@ class BookStoreControllerTest extends FeatureTest with Mockito {
         "response \"NotFound\", when delete key isn't exist" in {
             val notExistKey = "1111111111111"
 
-            stubBookDao.deleteBook(anyString) returns false
+            stubBookDao.deleteBook(anyString) returns Left(new RuntimeException)
 
             server.httpDelete(
                 path = BookStoreApi.path_delete(notExistKey),

@@ -89,7 +89,7 @@ class BookStoreController @Inject()(db: MongodbOperation) extends Controller {
         request: Request =>
             val key = request.params("isbn")
 
-            if (db.deleteBook(key)) response.accepted
+            if (db.deleteBook(key).isRight) response.accepted
             else response.notFound
     }
 

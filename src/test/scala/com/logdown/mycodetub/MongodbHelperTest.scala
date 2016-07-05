@@ -213,16 +213,16 @@ class MongodbHelperTest extends FlatSpec
         updateResult should be(false)
     }
 
-    "deleteData" should "return true after delete success" in {
+    "deleteData" should "return Right after delete success" in {
         info("add book(isbn=9789863476733) in MongoDB")
         MongoDb.insertBook(gson.fromJson(booksData(0), classOf[Book])) shouldBe Right("successfully")
 
         info("delete book from MongoDB")
-        MongoDb.deleteBook("9789863476733") should be(true)
+        MongoDb.deleteBook("9789863476733").isRight shouldBe true
     }
 
-    it should "return false, after delete failed" in {
-        MongoDb.deleteBook("non_exist_key") should be(false)
+    it should "return Left, after delete failed" in {
+        MongoDb.deleteBook("non_exist_key").isLeft shouldBe true
     }
 
     "listData" should "return all books list" in {
