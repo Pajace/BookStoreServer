@@ -63,12 +63,14 @@ libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % versions.mo
 // typesafe config for scala wrapper: config-annotation
 // ----------------------------------------------------
 libraryDependencies += "com.wacai" %% "config-annotation" % "0.3.1"
-
 libraryDependencies += "com.wacai" %% "config-annotation" % "0.3.1" % "test"
-
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
-
 scalacOptions += s"-Xmacro-settings:conf.output.dir=${baseDirectory.value / "conf"}"
-
 unmanagedClasspath in Runtime += baseDirectory.value / "conf"
 // ----------------------------------------------------
+
+// docker-it-scala
+//----------------------------------------------------
+libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.6.1" % "test"
+libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.6.1" % "test"
+//----------------------------------------------------
