@@ -71,6 +71,6 @@ unmanagedClasspath in Runtime += baseDirectory.value / "conf"
 
 // docker-it-scala
 //----------------------------------------------------
-libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.6.1" % "test"
-libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.6.1" % "test"
+libraryDependencies += "com.whisk" %% "docker-testkit-scalatest" % "0.8.2" % "test"
+libraryDependencies += "com.whisk" %% "docker-testkit-config" % "0.8.2" % "test"
 //----------------------------------------------------

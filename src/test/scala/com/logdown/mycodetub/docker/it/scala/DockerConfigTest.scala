@@ -1,7 +1,7 @@
-package com.logdown.mycodetub
+package com.logdown.mycodetub.docker.it.scala
 
-import com.whisk.docker.{DockerContainer, DockerReadyChecker}
 import com.whisk.docker.config.DockerKitConfig
+import com.whisk.docker.{DockerContainer, DockerReadyChecker}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
