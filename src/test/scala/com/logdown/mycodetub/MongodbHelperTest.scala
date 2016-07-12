@@ -6,9 +6,11 @@ import com.google.gson.Gson
 import com.logdown.mycodetub.data.Book
 import com.logdown.mycodetub.db.MongoDbConnector._
 import com.logdown.mycodetub.db.MongodbHelper
+import com.whisk.docker.scalatest.DockerTestKit
+import docker.it.config.DockerMongodbService
 import org.mongodb.scala._
 import org.mongodb.scala.bson.collection.immutable.Document
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -16,8 +18,9 @@ import scala.concurrent.duration.Duration
 /**
   * Created by pajace_chen on 2016/6/14.
   */
-class MongodbHelperTest extends FlatSpec
-    with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+class MongodbHelperTest extends FlatSpec with Matchers
+    with BeforeAndAfterEach
+    with DockerTestKit with DockerMongodbService {
     val EMPTY_STRING = ""
     val gson: Gson = new Gson
 

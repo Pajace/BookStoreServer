@@ -1,6 +1,6 @@
 package docker.it
 
-import docker.it.typesafe.DockerMongodbService
+import docker.it.config.DockerMongodbService
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

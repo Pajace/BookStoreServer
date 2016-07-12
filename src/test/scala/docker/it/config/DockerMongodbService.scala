@@ -1,4 +1,4 @@
-package docker.it.typesafe
+package docker.it.config
 
 import com.whisk.docker.DockerContainer
 import com.whisk.docker.config.DockerKitConfig

@@ -1,10 +1,10 @@
-package com.logdown.mycodetub.docker.it.scala
+package com.logdown.mycodetub.dockeritscala
 
 import com.github.dockerjava.core.DockerClientConfig
 import com.github.dockerjava.netty.DockerCmdExecFactoryImpl
 import com.whisk.docker._
 import com.whisk.docker.scalatest.DockerTestKit
-import docker.it.typesafe.DockerMongodbService
+import docker.it.config.DockerMongodbService
 import org.scalatest.time.{Second, Seconds, Span}
 import org.scalatest.{FlatSpec, Matchers}
 
